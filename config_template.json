@@ -1,3 +1,7 @@
 {
-    "BotToken": ""
+    "BotToken": "",
+    "DBUser": "",
+    "DBPassword": "",
+    "DBAddress": "",
+    "DebugMode": ""
 }
