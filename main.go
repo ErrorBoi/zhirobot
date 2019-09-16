@@ -3,11 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"zhirobot/bot"
 	"zhirobot/db"
+	h "zhirobot/helpers"
 )
 
 // Config contains project configuration
@@ -15,7 +15,8 @@ type Config struct {
 	BotToken   string `json:"BotToken"`
 	DBUser     string `json:"DBUser"`
 	DBPassword string `json:"DBPassword"`
-	DBAddress  string `json:"DBAddress"`
+	DBHost     string `json:"DBHost"`
+	DBPort     string `json:"DBPort"`
 	DebugMode  string `json:"DebugMode"`
 }
 
@@ -24,12 +25,32 @@ func main() {
 	config := Config{}
 	decode(&config)
 
-	db.InitDB("postgres://" + config.DBUser + ":" + config.DBPassword + "@" + config.DBAddress + "/zhirobot")
+	// Create DB and Test Table inside of it
+	port, err := strconv.Atoi(config.DBPort)
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=testdb sslmode=disable",
+		config.DBHost, port, config.DBUser, config.DBPassword)
 
+	zDB, err := db.NewDB(psqlInfo)
+	h.PanicIfErr(err)
+	defer zDB.DB.Close()
+	zDB.NewDatabase("testdb")
+	// _, err = db.Exec("USE testdb")
+	// h.PanicIfErr(err)
+	stmt, err := zDB.DB.Prepare(`CREATE TABLE useracc(
+		user_id serial PRIMARY KEY,
+		username VARCHAR (50) UNIQUE NOT NULL,
+		password VARCHAR (50) NOT NULL,
+		email VARCHAR (355) UNIQUE NOT NULL,
+		created_on TIMESTAMP NOT NULL,
+		last_login TIMESTAMP
+	 );`)
+	h.PanicIfErr(err)
+	_, err = stmt.Exec()
+	h.PanicIfErr(err)
+
+	// Init Bot and listen to updates
 	zBot, err := bot.InitBot(config.BotToken)
-	if err != nil {
-		log.Panic(err)
-	}
+	h.PanicIfErr(err)
 
 	zBot.SetDebugMode(strconv.ParseBool(config.DebugMode))
 

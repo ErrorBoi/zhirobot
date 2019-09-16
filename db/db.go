@@ -2,20 +2,36 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
+
+	// Go PostgreSQL package
+	h "zhirobot/helpers"
+
+	_ "github.com/lib/pq"
 )
 
-var db *sql.DB
+type DB struct {
+	DB *sql.DB
+}
 
-// InitDB inits database
-func InitDB(dataSourceName string) (*sql.DB, error) {
+// NewDB creates and returns Database
+func NewDB(dataSourceName string) (*DB, error) {
+	var db DB
 	var err error
-	db, err = sql.Open("postgres", dataSourceName)
+
+	db.DB, err = sql.Open("postgres", dataSourceName)
 	if err != nil {
 		return nil, err
 	}
-
-	if err = db.Ping(); err != nil {
+	if err = db.DB.Ping(); err != nil {
 		return nil, err
 	}
-	return db, nil
+	return &db, nil
+}
+
+func (db DB) NewDatabase(dbName string) {
+	statement := fmt.Sprintf(`SELECT 'CREATE DATABASE %s'
+	WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '%s')`, dbName, dbName)
+	_, err := db.DB.Exec(statement)
+	h.PanicIfErr(err)
 }
