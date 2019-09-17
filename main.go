@@ -30,31 +30,17 @@ func main() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=testdb sslmode=disable",
 		config.DBHost, port, config.DBUser, config.DBPassword)
 
-	zDB, err := db.NewDB(psqlInfo)
-	h.PanicIfErr(err)
-	defer zDB.DB.Close()
-	zDB.NewDatabase("testdb")
-	// _, err = db.Exec("USE testdb")
-	// h.PanicIfErr(err)
-	stmt, err := zDB.DB.Prepare(`CREATE TABLE useracc(
-		user_id serial PRIMARY KEY,
-		username VARCHAR (50) UNIQUE NOT NULL,
-		password VARCHAR (50) NOT NULL,
-		email VARCHAR (355) UNIQUE NOT NULL,
-		created_on TIMESTAMP NOT NULL,
-		last_login TIMESTAMP
-	 );`)
-	h.PanicIfErr(err)
-	_, err = stmt.Exec()
+	err = db.NewDB(psqlInfo)
+	defer db.Zdb.DB.Close()
 	h.PanicIfErr(err)
 
 	// Init Bot and listen to updates
-	zBot, err := bot.InitBot(config.BotToken)
+	ZBot, err := bot.InitBot(config.BotToken)
 	h.PanicIfErr(err)
 
-	zBot.SetDebugMode(strconv.ParseBool(config.DebugMode))
+	ZBot.SetDebugMode(strconv.ParseBool(config.DebugMode))
 
-	zBot.InitUpdates()
+	ZBot.InitUpdates()
 }
 
 func decode(c *Config) {
