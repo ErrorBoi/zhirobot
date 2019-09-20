@@ -2,6 +2,7 @@ package bot
 
 import (
 	"log"
+	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/jasonlvhit/gocron" // Job Scheduling Package
@@ -64,17 +65,12 @@ func (b *Bot) InitUpdates() {
 		}
 
 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-		msg.ReplyToMessageID = update.Message.MessageID
-
-		b.BotAPI.Send(msg)
 	}
 }
 
 // ExecuteCommand distributes commands to go routines
 func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
-	command := m.Command()
+	command := strings.ToLower(m.Command())
 	log.Printf("Command: %s, Username: %s, ID: %d", command, m.From.UserName, m.From.ID)
 
 	switch command {
@@ -85,6 +81,14 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 	case "start":
 		{
 			go b.start(m)
+		}
+	case "help":
+		{
+			go b.help(m)
+		}
+	case "setweight":
+		{
+			go b.setWeight(m)
 		}
 	default:
 		{

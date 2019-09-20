@@ -25,7 +25,7 @@ func main() {
 	config := Config{}
 	decode(&config)
 
-	// Create DB and Test Table inside of it
+	// Create DB and Tables
 	port, err := strconv.Atoi(config.DBPort)
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=testdb sslmode=disable",
 		config.DBHost, port, config.DBUser, config.DBPassword)
@@ -33,6 +33,9 @@ func main() {
 	err = db.NewDB(psqlInfo)
 	defer db.Zdb.DB.Close()
 	h.PanicIfErr(err)
+	db.NewDatabase("testdb")
+	db.NewUserTable()
+	db.NewWeightTable()
 
 	// Init Bot and listen to updates
 	ZBot, err := bot.InitBot(config.BotToken)
