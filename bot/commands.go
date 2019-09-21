@@ -18,6 +18,7 @@ func (b *Bot) faq(m *tgbotapi.Message) {
 }
 
 func (b *Bot) start(m *tgbotapi.Message) {
+	b.faq(m)
 	db.CreateUser(m.From.ID)
 }
 

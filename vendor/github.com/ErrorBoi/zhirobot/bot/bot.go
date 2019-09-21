@@ -81,7 +81,6 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 	case "start":
 		{
 			go b.start(m)
-			go b.faq(m)
 		}
 	case "help":
 		{
