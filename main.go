@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 
@@ -19,6 +20,11 @@ type Config struct {
 	DBHost     string `json:"DBHost"`
 	DBPort     string `json:"DBPort"`
 	DebugMode  string `json:"DebugMode"`
+}
+
+// MainHandler responds to http request
+func MainHandler(resp http.ResponseWriter, _ *http.Request) {
+	resp.Write([]byte("Hi there! I'm DndSpellsBot!"))
 }
 
 func main() {
@@ -46,6 +52,9 @@ func main() {
 	h.PanicIfErr(err)
 
 	ZBot.SetDebugMode(strconv.ParseBool(os.Getenv("DEBUG_MODE")))
+
+	http.HandleFunc("/", MainHandler)
+	go http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 
 	ZBot.InitUpdates(os.Getenv("BOT_TOKEN"))
 }

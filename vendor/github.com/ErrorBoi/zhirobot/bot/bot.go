@@ -2,8 +2,6 @@ package bot
 
 import (
 	"log"
-	"net/http"
-	"os"
 	"strings"
 
 	h "github.com/ErrorBoi/zhirobot/helpers"
@@ -16,11 +14,6 @@ import (
 type Bot struct {
 	BotAPI   *tgbotapi.BotAPI
 	ChatName string
-}
-
-// MainHandler responds to http request
-func MainHandler(resp http.ResponseWriter, _ *http.Request) {
-	resp.Write([]byte("Hi there! I'm DndSpellsBot!"))
 }
 
 // InitBot inits a bot with given Token
@@ -60,9 +53,6 @@ func (b *Bot) InitUpdates(BotToken string) {
 	// Send "Time to weigh" reminder every Sunday
 	gocron.Every(1).Sunday().At("10:00").Do(b.weeklyNotification, b.ChatName)
 	gocron.Start()
-
-	http.HandleFunc("/", MainHandler)
-	go http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 
 	for update := range updates {
 		if update.Message == nil { // ignore any non-Message Updates
