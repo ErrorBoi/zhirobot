@@ -29,8 +29,10 @@ func Handler(resp http.ResponseWriter, _ *http.Request) {
 
 func main() {
 	// Store Bot Configs in Config struct
-	config := Config{}
-	decode(&config)
+	// config := Config{}
+	// decode(&config)
+
+	CreateConfig()
 
 	// Create DB and Tables
 	// port, err := strconv.Atoi(config.DBPort)
@@ -45,12 +47,12 @@ func main() {
 	db.NewWeightTable()
 
 	// Init Bot and listen to updates
-	ZBot, err := bot.InitBot(config.BotToken)
+	ZBot, err := bot.InitBot(os.Getenv("BOT_TOKEN"))
 	h.PanicIfErr(err)
 
-	ZBot.SetDebugMode(strconv.ParseBool(config.DebugMode))
+	ZBot.SetDebugMode(strconv.ParseBool(os.Getenv("DEBUG_MODE")))
 
-	ZBot.InitUpdates(config.BotToken)
+	ZBot.InitUpdates(os.Getenv("BOT_TOKEN"))
 	http.HandleFunc("/", Handler)
 	go http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 }
