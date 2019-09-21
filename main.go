@@ -32,7 +32,7 @@ func main() {
 	// config := Config{}
 	// decode(&config)
 
-	CreateConfig()
+	// CreateConfig()
 
 	// Create DB and Tables
 	// port, err := strconv.Atoi(config.DBPort)
