@@ -51,7 +51,7 @@ func main() {
 
 	ZBot.SetDebugMode(strconv.ParseBool(config.DebugMode))
 
-	ZBot.InitUpdates()
+	ZBot.InitUpdates(config.BotToken)
 }
 
 func decode(c *Config) {

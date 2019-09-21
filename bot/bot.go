@@ -3,6 +3,7 @@ package bot
 import (
 	"log"
 	"strings"
+	h "zhirobot/helpers"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/jasonlvhit/gocron" // Job Scheduling Package
@@ -33,21 +34,17 @@ func InitBot(BotToken string) (*Bot, error) {
 // SetDebugMode turns botAPI's debug mode on/off
 func (b *Bot) SetDebugMode(DebugMode bool, err error) {
 	b.BotAPI.Debug = DebugMode
-	if err != nil {
-		log.Panic(err)
-	}
+	h.PanicIfErr(err)
 }
 
 // InitUpdates inits an Updates Channel
-func (b *Bot) InitUpdates() {
+func (b *Bot) InitUpdates(BotToken string) {
 	ucfg := tgbotapi.NewUpdate(0)
 	ucfg.Timeout = 60
 
-	updates, err := b.BotAPI.GetUpdatesChan(ucfg)
-
-	if err != nil {
-		log.Panic(err)
-	}
+	// updates, err := b.BotAPI.GetUpdatesChan(ucfg)
+	// h.PanicIfErr(err)
+	updates := b.BotAPI.ListenForWebhook("/" + BotToken)
 	log.Printf("Authorized on account %s", b.BotAPI.Self.UserName)
 
 	// Send "Time to weigh" reminder every Sunday

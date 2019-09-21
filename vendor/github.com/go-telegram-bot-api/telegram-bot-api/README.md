@@ -34,9 +34,7 @@ import (
 
 func main() {
 	bot, err := tgbotapi.NewBotAPI("MyAwesomeBotToken")
-	if err != nil {
-		log.Panic(err)
-	}
+	h.PanicIfErr(err)
 
 	bot.Debug = true
 
