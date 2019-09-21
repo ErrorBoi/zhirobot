@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"zhirobot/db"
-	h "zhirobot/helpers"
+
+	"github.com/ErrorBoi/zhirobot/db"
+	h "github.com/ErrorBoi/zhirobot/helpers"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )

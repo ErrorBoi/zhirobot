@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	h "zhirobot/helpers"
+	h "github.com/ErrorBoi/zhirobot/helpers"
 
 	// Go PostgreSQL package
 	_ "github.com/lib/pq"
