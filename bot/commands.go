@@ -60,9 +60,10 @@ func (b *Bot) getWeight(m *tgbotapi.Message) {
 	// Add a feature to get stats of all users (who didn't make their stats private?)
 	// Add a feature to get stats for a chosen period
 	stats := db.GetUserWeight(m.From.ID)
-	msg := `<pre>
+	msg := fmt.Sprintf(`<pre>
+%s:
 |   Вес     |     Дата      |
-|-----------|:-------------:|`
+|-----------|:-------------:|`, m.From.FirstName)
 	for _, stat := range stats {
 		msg += fmt.Sprintf("\n|%6.1f     |   %s  |", stat.WeightValue, stat.WeighDate)
 	}
