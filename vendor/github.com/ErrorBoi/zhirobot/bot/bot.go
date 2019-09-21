@@ -18,9 +18,9 @@ type Bot struct {
 	ChatName string
 }
 
-// Handler responds to http request
-func Handler(resp http.ResponseWriter, _ *http.Request) {
-	resp.Write([]byte("Hi there! I'm Zhirobot!"))
+// MainHandler responds to http request
+func MainHandler(resp http.ResponseWriter, _ *http.Request) {
+	resp.Write([]byte("Hi there! I'm DndSpellsBot!"))
 }
 
 // InitBot inits a bot with given Token
@@ -61,8 +61,8 @@ func (b *Bot) InitUpdates(BotToken string) {
 	gocron.Every(1).Sunday().At("10:00").Do(b.weeklyNotification, b.ChatName)
 	gocron.Start()
 
-	http.HandleFunc("/", Handler)
-	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
+	http.HandleFunc("/", MainHandler)
+	go http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 
 	for update := range updates {
 		if update.Message == nil { // ignore any non-Message Updates
