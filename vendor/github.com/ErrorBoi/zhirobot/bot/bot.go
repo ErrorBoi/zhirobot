@@ -47,8 +47,8 @@ func (b *Bot) SetDebugMode(DebugMode bool, err error) {
 
 // InitUpdates inits an Updates Channel
 func (b *Bot) InitUpdates(BotToken string) {
-	ucfg := tgbotapi.NewUpdate(0)
-	ucfg.Timeout = 60
+	// ucfg := tgbotapi.NewUpdate(0)
+	// ucfg.Timeout = 60
 
 	// updates, err := b.BotAPI.GetUpdatesChan(ucfg)
 	// h.PanicIfErr(err)
