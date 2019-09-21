@@ -3,6 +3,18 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:2eac78867af16ae3b28928fc94d3242b4ecc15dc54a07376e95f389d9a4d9bf0"
+  name = "github.com/ErrorBoi/zhirobot"
+  packages = [
+    "bot",
+    "db",
+    "helpers"
+  ]
+  pruneopts = "UT"
+  revision = "7ff43ce1436d146915dfdd92aa4a7063802e7487"
+
+[[projects]]
+  branch = "master"
   digest = "1:7500ba3e722746451ac382ff9186c20a07d8b7862a691e76cf813da8abf15c65"
   name = "github.com/go-telegram-bot-api/telegram-bot-api"
   packages = ["."]
@@ -39,6 +51,9 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/ErrorBoi/zhirobot/bot",
+    "github.com/ErrorBoi/zhirobot/db",
+    "github.com/ErrorBoi/zhirobot/helpers",
     "github.com/go-telegram-bot-api/telegram-bot-api",
     "github.com/jasonlvhit/gocron",
     "github.com/lib/pq"

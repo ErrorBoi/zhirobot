@@ -6,9 +6,10 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"zhirobot/bot"
-	"zhirobot/db"
-	h "zhirobot/helpers"
+
+	"github.com/ErrorBoi/zhirobot/bot"
+	"github.com/ErrorBoi/zhirobot/db"
+	h "github.com/ErrorBoi/zhirobot/helpers"
 )
 
 // Config contains project configuration
