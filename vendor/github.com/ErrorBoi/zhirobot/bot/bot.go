@@ -49,6 +49,8 @@ func (b *Bot) SetDebugMode(DebugMode bool, err error) {
 func (b *Bot) InitUpdates(BotToken string) {
 	// ucfg := tgbotapi.NewUpdate(0)
 	// ucfg.Timeout = 60
+	ucfg := tgbotapi.NewUpdate(0)
+	ucfg.Timeout = 60
 
 	// updates, err := b.BotAPI.GetUpdatesChan(ucfg)
 	// h.PanicIfErr(err)
@@ -60,7 +62,7 @@ func (b *Bot) InitUpdates(BotToken string) {
 	gocron.Start()
 
 	http.HandleFunc("/", Handler)
-	go http.ListenAndServe(":"+os.Getenv("PORT"), nil)
+	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 
 	for update := range updates {
 		if update.Message == nil { // ignore any non-Message Updates
