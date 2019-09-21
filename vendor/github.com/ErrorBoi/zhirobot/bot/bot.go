@@ -3,7 +3,8 @@ package bot
 import (
 	"log"
 	"strings"
-	h "zhirobot/helpers"
+
+	h "github.com/ErrorBoi/zhirobot/helpers"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/jasonlvhit/gocron" // Job Scheduling Package
