@@ -35,3 +35,4 @@
 
 [metadata.heroku]
   root-package = "github.com/ErrorBoi/zhirobot"
+  install = [ "./..." ]
