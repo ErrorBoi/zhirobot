@@ -27,8 +27,6 @@ func Handler(resp http.ResponseWriter, _ *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", Handler)
-	go http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 	// Store Bot Configs in Config struct
 	config := Config{}
 	decode(&config)
@@ -52,6 +50,8 @@ func main() {
 	ZBot.SetDebugMode(strconv.ParseBool(config.DebugMode))
 
 	ZBot.InitUpdates(config.BotToken)
+	http.HandleFunc("/", Handler)
+	go http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 }
 
 func decode(c *Config) {
