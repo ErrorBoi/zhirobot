@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"zhirobot/bot"
@@ -20,7 +21,14 @@ type Config struct {
 	DebugMode  string `json:"DebugMode"`
 }
 
+// Handler responds to http request
+func Handler(resp http.ResponseWriter, _ *http.Request) {
+	resp.Write([]byte("Hi there! I'm Zhirobot!"))
+}
+
 func main() {
+	http.HandleFunc("/", Handler)
+	go http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 	// Store Bot Configs in Config struct
 	config := Config{}
 	decode(&config)
