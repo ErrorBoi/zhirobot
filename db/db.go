@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
 	h "zhirobot/helpers"
@@ -88,32 +87,48 @@ func CreateUser(tgID int) {
 // SetUserWeight inserts/updates user weight
 func SetUserWeight(tgID int, w float64) {
 	ID := UserExists(tgID)
-	if ID != 0 {
+	if ID == 0 {
+		CreateUser(tgID)
+		SetUserWeight(tgID, w)
+	} else {
 		_, err := Zdb.DB.Exec(`
 		INSERT INTO userweight (user_id, weigh_date, weight_value)
 		VALUES ($1, $2, $3)
 		ON CONFLICT (user_id, weigh_date) DO UPDATE 
 		SET weight_value=EXCLUDED.weight_value`, ID, time.Now().Format("02/01/2006"), w)
 		h.PanicIfErr(err)
-	} else {
-		log.Println("This user doesn't exist")
 	}
 }
 
-// UserExists checks if user with given tgID existsand returns it's ID or 0
+// UserExists checks if user with given tgID exists and returns it's ID or 0
 func UserExists(tgID int) int {
 	ID := 0
-	row := Zdb.DB.QueryRow(`
+
+	stmt, err := Zdb.DB.Exec(`
 	SELECT id FROM useracc
 	WHERE tg_id = $1`, tgID)
-	err := row.Scan(&ID)
 	h.PanicIfErr(err)
+	rowsAffected, err := stmt.RowsAffected()
+	h.PanicIfErr(err)
+
+	if rowsAffected != 0 {
+		row := Zdb.DB.QueryRow(`
+		SELECT id FROM useracc
+		WHERE tg_id = $1`, tgID)
+		err = row.Scan(&ID)
+		h.PanicIfErr(err)
+	}
+
 	return ID
 }
 
 // GetUserWeight returns weight stats for chosen user
 func GetUserWeight(tgID int) []*Stat {
 	ID := UserExists(tgID)
+	if ID == 0 {
+		CreateUser(tgID)
+		GetUserWeight(tgID)
+	}
 	rows, err := Zdb.DB.Query(`
 	SELECT weigh_date, weight_value from userweight
 	WHERE user_id = $1`, ID)
