@@ -32,11 +32,11 @@ func main() {
 	decode(&config)
 
 	// Create DB and Tables
-	port, err := strconv.Atoi(config.DBPort)
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=testdb sslmode=disable",
-		config.DBHost, port, config.DBUser, config.DBPassword)
+	// port, err := strconv.Atoi(config.DBPort)
+	// psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=testdb sslmode=disable",
+	// 	config.DBHost, port, config.DBUser, config.DBPassword)
 
-	err = db.NewDB(psqlInfo)
+	err := db.NewDB(os.Getenv("DATABASE_URL"))
 	defer db.Zdb.DB.Close()
 	h.PanicIfErr(err)
 	db.NewDatabase("testdb")
