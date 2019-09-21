@@ -20,6 +20,12 @@ type DB struct {
 // Zdb is a working Database
 var Zdb DB
 
+// Stat is a struct that contains weight date and value
+type Stat struct {
+	WeighDate   string
+	WeightValue float64
+}
+
 // NewDB creates and returns Database
 func NewDB(dataSourceName string) error {
 	var err error
@@ -90,7 +96,7 @@ func SetUserWeight(tgID int, w float64) {
 		SET weight_value=EXCLUDED.weight_value`, ID, time.Now().Format("02/01/2006"), w)
 		h.PanicIfErr(err)
 	} else {
-		log.Println("No user")
+		log.Println("This user doesn't exist")
 	}
 }
 
@@ -105,11 +111,23 @@ func UserExists(tgID int) int {
 	return ID
 }
 
-// InsertWeight inserts user weight into userweight table
-func InsertWeight() {
-	// _, err := Zdb.DB.Exec(`
-	// INSERT INTO useracc (tg_id, created_on)
-	// VALUES ($1, $2::timestamp)
-	// ON CONFLICT (tg_id) DO UPDATE SET created_on=EXCLUDED.created_on`, id, time.Now().Format(time.RFC3339))
-	// h.PanicIfErr(err)
+// GetUserWeight returns weight stats for chosen user
+func GetUserWeight(tgID int) []*Stat {
+	ID := UserExists(tgID)
+	rows, err := Zdb.DB.Query(`
+	SELECT weigh_date, weight_value from userweight
+	WHERE user_id = $1`, ID)
+	h.PanicIfErr(err)
+	defer rows.Close()
+
+	stats := make([]*Stat, 0)
+	for rows.Next() {
+		stat := new(Stat)
+		err := rows.Scan(&stat.WeighDate, &stat.WeightValue)
+		h.PanicIfErr(err)
+		stats = append(stats, stat)
+	}
+	err = rows.Err()
+	h.PanicIfErr(err)
+	return stats
 }

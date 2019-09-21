@@ -90,6 +90,10 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 		{
 			go b.setWeight(m)
 		}
+	case "getweight":
+		{
+			go b.getWeight(m)
+		}
 	default:
 		{
 			msg := tgbotapi.NewMessage(m.Chat.ID, "Я не знаю такой команды (凸ಠ益ಠ)凸\nНапиши /help и получи справку по командам")
