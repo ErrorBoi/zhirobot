@@ -9,7 +9,7 @@ import (
 
 	"github.com/ErrorBoi/zhirobot/bot"
 	"github.com/ErrorBoi/zhirobot/db"
-	h "zhirobot/helpers"
+	h "github.com/ErrorBoi/zhirobot/helpers"
 )
 
 // Config contains project configuration
