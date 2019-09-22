@@ -51,7 +51,11 @@ func (b *Bot) InitUpdates(BotToken string) {
 	log.Printf("Authorized on account %s", b.BotAPI.Self.UserName)
 
 	// Send "Time to weigh" reminder every Sunday
-	gocron.Every(1).Sunday().At("08:20").Do(b.weeklyNotification, b.ChatID)
+	gocron.Every(1).Sunday().At("09:00").Do(b.weeklyNotification, b.ChatID)
+	gocron.Every(1).Sunday().At("10:00").Do(b.weeklyNotification, b.ChatID)
+	gocron.Every(1).Sunday().At("13:00").Do(b.weeklyNotification, b.ChatID)
+	gocron.Every(1).Sunday().At("14:00").Do(b.weeklyNotification, b.ChatID)
+	gocron.Every(1).Sunday().At("15:00").Do(b.weeklyNotification, b.ChatID)
 	gocron.Start()
 
 	for update := range updates {
