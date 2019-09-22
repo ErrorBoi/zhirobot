@@ -73,3 +73,14 @@ func (b *Bot) getWeight(m *tgbotapi.Message) {
 	message.ParseMode = tgbotapi.ModeHTML
 	b.BotAPI.Send(message)
 }
+
+func (b *Bot) getInviteLink(m *tgbotapi.Message) {
+	ccfg := tgbotapi.ChatConfig{
+		ChatID: b.ChatID,
+	}
+	inviteLink, err := b.BotAPI.GetInviteLink(ccfg)
+	h.PanicIfErr(err)
+	msg := fmt.Sprintf("Инвайт в чат \"Жиросброс\": %s", inviteLink)
+	message := tgbotapi.NewMessage(m.Chat.ID, msg)
+	b.BotAPI.Send(message)
+}

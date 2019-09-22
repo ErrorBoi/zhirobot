@@ -6,9 +6,9 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-func (b *Bot) weeklyNotification(chatName string) {
+func (b *Bot) weeklyNotification() {
 	ccfg := tgbotapi.ChatConfig{
-		SuperGroupUsername: chatName,
+		ChatID: b.ChatID,
 	}
 	chat, err := b.BotAPI.GetChat(ccfg)
 	h.PanicIfErr(err)

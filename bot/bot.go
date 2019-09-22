@@ -12,8 +12,8 @@ import (
 
 // Bot unites botAPI and channels
 type Bot struct {
-	BotAPI   *tgbotapi.BotAPI
-	ChatName string
+	BotAPI *tgbotapi.BotAPI
+	ChatID int64
 }
 
 // InitBot inits a bot with given Token
@@ -27,7 +27,7 @@ func InitBot(BotToken string) (*Bot, error) {
 
 	bot.BotAPI.Buffer = 12 * 50
 
-	bot.ChatName = "@grosebros"
+	bot.ChatID = -1001329666345
 
 	return &bot, nil
 }
@@ -49,7 +49,7 @@ func (b *Bot) InitUpdates(BotToken string) {
 	log.Printf("Authorized on account %s", b.BotAPI.Self.UserName)
 
 	// Send "Time to weigh" reminder every Sunday
-	gocron.Every(1).Sunday().At("10:00").Do(b.weeklyNotification, b.ChatName)
+	gocron.Every(1).Sunday().At("10:00").Do(b.weeklyNotification)
 	gocron.Start()
 
 	for update := range updates {
@@ -91,6 +91,10 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 	case "getweight":
 		{
 			go b.getWeight(m)
+		}
+	case "invite":
+		{
+			go b.getInviteLink(m)
 		}
 	default:
 		{
