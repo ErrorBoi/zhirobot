@@ -3,7 +3,6 @@ package bot
 import (
 	"log"
 	"strings"
-
 	h "zhirobot/helpers"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -12,8 +11,8 @@ import (
 
 // Bot unites botAPI and channels
 type Bot struct {
-	BotAPI *tgbotapi.BotAPI
-	ChatID int64
+	BotAPI   *tgbotapi.BotAPI
+	ChatName string
 }
 
 // InitBot inits a bot with given Token
@@ -27,7 +26,7 @@ func InitBot(BotToken string) (*Bot, error) {
 
 	bot.BotAPI.Buffer = 12 * 50
 
-	bot.ChatID = -1001329666345
+	bot.ChatName = "@grosebros"
 
 	return &bot, nil
 }
@@ -49,7 +48,7 @@ func (b *Bot) InitUpdates(BotToken string) {
 	log.Printf("Authorized on account %s", b.BotAPI.Self.UserName)
 
 	// Send "Time to weigh" reminder every Sunday
-	gocron.Every(1).Sunday().At("10:00").Do(b.weeklyNotification)
+	gocron.Every(1).Sunday().At("10:00").Do(b.weeklyNotification, b.ChatName)
 	gocron.Start()
 
 	for update := range updates {
@@ -91,10 +90,6 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 	case "getweight":
 		{
 			go b.getWeight(m)
-		}
-	case "invite":
-		{
-			go b.getInviteLink(m)
 		}
 	default:
 		{

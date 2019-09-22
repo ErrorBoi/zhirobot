@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-
-	"github.com/ErrorBoi/zhirobot/db"
+	"zhirobot/db"
 	h "zhirobot/helpers"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -18,7 +17,6 @@ func (b *Bot) faq(m *tgbotapi.Message) {
 }
 
 func (b *Bot) start(m *tgbotapi.Message) {
-	b.help(m)
 	db.CreateUser(m.From.ID)
 }
 
@@ -61,26 +59,14 @@ func (b *Bot) getWeight(m *tgbotapi.Message) {
 	// Add a feature to get stats of all users (who didn't make their stats private?)
 	// Add a feature to get stats for a chosen period
 	stats := db.GetUserWeight(m.From.ID)
-	msg := fmt.Sprintf(`<pre>
-%s:
+	msg := `<pre>
 |   Вес     |     Дата      |
-|-----------|:-------------:|`, m.From.FirstName)
+|-----------|:-------------:|`
 	for _, stat := range stats {
 		msg += fmt.Sprintf("\n|%6.1f     |   %s  |", stat.WeightValue, stat.WeighDate)
 	}
 	msg += "</pre>"
 	message := tgbotapi.NewMessage(m.Chat.ID, msg)
 	message.ParseMode = tgbotapi.ModeHTML
-	b.BotAPI.Send(message)
-}
-
-func (b *Bot) getInviteLink(m *tgbotapi.Message) {
-	ccfg := tgbotapi.ChatConfig{
-		ChatID: b.ChatID,
-	}
-	inviteLink, err := b.BotAPI.GetInviteLink(ccfg)
-	h.PanicIfErr(err)
-	msg := fmt.Sprintf("Инвайт в чат \"Жиросброс\": %s", inviteLink)
-	message := tgbotapi.NewMessage(m.Chat.ID, msg)
 	b.BotAPI.Send(message)
 }
