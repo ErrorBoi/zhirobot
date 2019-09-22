@@ -36,6 +36,3 @@
 [metadata.heroku]
   root-package = "github.com/ErrorBoi/zhirobot"
   install = [ "./..." ]
-[[constraint]]
-  branch = "master"
-  name = "github.com/ErrorBoi/zhirobot"
