@@ -86,6 +86,17 @@ func (db *DB) CreateUser(tgID int) {
 	}
 }
 
+// GetUser returns userID from user with given tgID
+func (db *DB) GetUserID(tgID int) int {
+	var userID int
+
+	row := db.DB.QueryRow(`SELECT id FROM useracc
+	WHERE tg_id = $1`, tgID)
+	row.Scan(&userID)
+
+	return userID
+}
+
 // SetUserWeight inserts/updates user weight
 func (db *DB) SetUserWeight(tgID int, w float64) {
 	exists := db.UserExists(tgID)
@@ -120,14 +131,18 @@ func (db *DB) UserExists(tgID int) bool {
 
 // GetUserWeight returns weight stats for chosen user
 func (db *DB) GetUserWeight(tgID int) []*Stat {
+	var userID int
+
 	exists := db.UserExists(tgID)
 	if !exists {
 		db.CreateUser(tgID)
 		db.GetUserWeight(tgID)
+	} else {
+		userID = db.GetUserID(tgID)
 	}
 	rows, err := db.DB.Query(`
 	SELECT weigh_date, weight_value from userweight
-	WHERE user_id = $1`, tgID)
+	WHERE user_id = $1`, userID)
 	if err != nil {
 		panic(err)
 	}
