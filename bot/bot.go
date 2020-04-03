@@ -96,11 +96,13 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 		{
 			go b.getInviteLink(m)
 		}
-	//default:
-	//	{
-	//		msg := tgbotapi.NewMessage(m.Chat.ID, "Я не знаю такой команды (凸ಠ益ಠ)凸\nНапиши /help и получи справку по командам")
-	//		msg.ReplyToMessageID = m.MessageID
-	//		b.BotAPI.Send(msg)
-	//	}
+	default:
+		{
+			if m.Chat.IsPrivate() {
+				msg := tgbotapi.NewMessage(m.Chat.ID, "Я не знаю такой команды (凸ಠ益ಠ)凸\nНапиши /help и получи справку по командам")
+				msg.ReplyToMessageID = m.MessageID
+				b.BotAPI.Send(msg)
+			}
+		}
 	}
 }
