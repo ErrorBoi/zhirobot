@@ -110,7 +110,7 @@ func (db *DB) UserExists(tgID int) bool {
 
 	row := db.DB.QueryRow(`select exists(select 1 from useracc where tg_id=$1)`, tgID)
 
-	err := row.Scan(exists)
+	err := row.Scan(&exists)
 	if err != nil {
 		panic(err)
 	}
