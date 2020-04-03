@@ -99,16 +99,18 @@ func (db *DB) GetUserID(tgID int) int {
 
 // SetUserWeight inserts/updates user weight
 func (db *DB) SetUserWeight(tgID int, w float64) {
+
 	exists := db.UserExists(tgID)
 	if !exists {
 		db.CreateUser(tgID)
 		db.SetUserWeight(tgID, w)
 	} else {
+		userID := db.GetUserID(tgID)
 		_, err := db.DB.Exec(`
 		INSERT INTO userweight (user_id, weigh_date, weight_value)
 		VALUES ($1, $2, $3)
 		ON CONFLICT (user_id, weigh_date) DO UPDATE 
-		SET weight_value=EXCLUDED.weight_value`, tgID, time.Now().Format("02/01/2006"), w)
+		SET weight_value=EXCLUDED.weight_value`, userID, time.Now().Format("02/01/2006"), w)
 		if err != nil {
 			panic(err)
 		}
