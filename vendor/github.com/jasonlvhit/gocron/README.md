@@ -1,8 +1,16 @@
-This package is currently looking for new maintainers (cause @jasonlvhit is in [ICU](https://github.com/996icu/996.ICU)). Please message @jasonlvhit if you are interested.
+### Note from current maintainers:
+A currently maintained fork of this project has been migrated to https://github.com/go-co-op/gocron
 
+Disclaimer: we (the maintainers) tried, with no luck, to get in contact with Jason (the repository owner) in order to add new maintainers or leave the project within an organization. Unfortunately, he hasn't replied for months now (March, 2020). 
+
+So, we decided to move the project to a new repository (as stated above), in order to keep the evolution of the project coming from as many people as possible. Feel free to reach over!
+ 
 ## goCron: A Golang Job Scheduling Package.
 
+This package is currently looking for new maintainers (cause @jasonlvhit is in [ICU](https://github.com/996icu/996.ICU)). Please message @jasonlvhit if you are interested.
+
 [![GgoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](http://godoc.org/github.com/jasonlvhit/gocron)
+[![Go Report Card](https://goreportcard.com/badge/github.com/jasonlvhit/gocron)](https://goreportcard.com/report/github.com/jasonlvhit/gocron)
 
 goCron is a Golang job scheduling package which lets you run Go functions periodically at pre-determined interval using a simple, human-friendly syntax.
 
@@ -13,6 +21,9 @@ See also this two great articles:
 - [Rethinking Cron](http://adam.herokuapp.com/past/2010/4/13/rethinking_cron/)
 - [Replace Cron with Clockwork](http://adam.herokuapp.com/past/2010/6/30/replace_cron_with_clockwork/)
 
+If you want to chat, you can find us at Slack! [<img src="https://img.shields.io/badge/gophers-gocron-brightgreen?logo=slack">](https://gophers.slack.com/archives/CQ7T0T1FW)
+
+
 Back to this package, you could just use this simple API as below, to run a cron scheduler.
 
 ```go
@@ -20,11 +31,13 @@ package main
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/jasonlvhit/gocron"
 )
 
 func task() {
-	fmt.Println("I am runnning task.")
+	fmt.Println("I am running task.")
 }
 
 func taskWithParams(a int, b string) {
@@ -32,12 +45,6 @@ func taskWithParams(a int, b string) {
 }
 
 func main() {
-	// Do jobs with params
-	gocron.Every(1).Second().Do(taskWithParams, 1, "hello")
-	
-	// Do jobs safely, preventing an unexpected panic from bubbling up
-	gocron.Every(1).Second().DoSafely(taskWithParams, 1, "hello")
-
 	// Do jobs without params
 	gocron.Every(1).Second().Do(task)
 	gocron.Every(2).Seconds().Do(task)
@@ -47,23 +54,39 @@ func main() {
 	gocron.Every(2).Hours().Do(task)
 	gocron.Every(1).Day().Do(task)
 	gocron.Every(2).Days().Do(task)
+	gocron.Every(1).Week().Do(task)
+	gocron.Every(2).Weeks().Do(task)
+
+	// Do jobs with params
+	gocron.Every(1).Second().Do(taskWithParams, 1, "hello")
 
 	// Do jobs on specific weekday
 	gocron.Every(1).Monday().Do(task)
 	gocron.Every(1).Thursday().Do(task)
 
-	// function At() take a string like 'hour:min'
+	// Do a job at a specific time - 'hour:min:sec' - seconds optional
 	gocron.Every(1).Day().At("10:30").Do(task)
 	gocron.Every(1).Monday().At("18:30").Do(task)
+	gocron.Every(1).Tuesday().At("18:30:59").Do(task)
 
-	// remove, clear and next_run
+	// Begin job immediately upon start
+	gocron.Every(1).Hour().From(gocron.NextTick()).Do(task)
+
+	// Begin job at a specific date/time
+	t := time.Date(2019, time.November, 10, 15, 0, 0, 0, time.Local)
+	gocron.Every(1).Hour().From(&t).Do(task)
+
+	// NextRun gets the next running time
 	_, time := gocron.NextRun()
 	fmt.Println(time)
 
+	// Remove a specific job
 	gocron.Remove(task)
+
+	// Clear all scheduled jobs
 	gocron.Clear()
 
-	// function Start start all the pending jobs
+	// Start all the pending jobs
 	<- gocron.Start()
 
 	// also, you can create a new scheduler
@@ -85,5 +108,15 @@ gocron.Every(1).Hour().Lock().Do(task)
 ```
 
 Once again, thanks to the great works of Ruby clockwork and Python schedule package. BSD license is used, see the file License for detail.
+
+Looking to contribute? Try to follow these guidelines:
+ * Use issues for everything
+ * For a small change, just send a PR!
+ * For bigger changes, please open an issue for discussion before sending a PR.
+ * PRs should have: tests, documentation and examples (if it makes sense)
+ * You can also contribute by:
+    * Reporting issues
+    * Suggesting new features or enhancements
+    * Improving/fixing documentation
 
 Have fun!
