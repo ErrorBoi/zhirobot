@@ -99,21 +99,20 @@ func (db *DB) GetUserID(tgID int) int {
 
 // SetUserWeight inserts/updates user weight
 func (db *DB) SetUserWeight(tgID int, w float64) {
-
+	//TODO: "create if not exists" should be one sql statement
 	exists := db.UserExists(tgID)
 	if !exists {
 		db.CreateUser(tgID)
-		db.SetUserWeight(tgID, w)
-	} else {
-		userID := db.GetUserID(tgID)
-		_, err := db.DB.Exec(`
+	}
+
+	userID := db.GetUserID(tgID)
+	_, err := db.DB.Exec(`
 		INSERT INTO userweight (user_id, weigh_date, weight_value)
 		VALUES ($1, $2, $3)
 		ON CONFLICT (user_id, weigh_date) DO UPDATE 
 		SET weight_value=EXCLUDED.weight_value`, userID, time.Now().Format("02/01/2006"), w)
-		if err != nil {
-			panic(err)
-		}
+	if err != nil {
+		panic(err)
 	}
 }
 
@@ -133,15 +132,12 @@ func (db *DB) UserExists(tgID int) bool {
 
 // GetUserWeight returns weight stats for chosen user
 func (db *DB) GetUserWeight(tgID int) []*Stat {
-	var userID int
-
 	exists := db.UserExists(tgID)
 	if !exists {
 		db.CreateUser(tgID)
-		db.GetUserWeight(tgID)
-	} else {
-		userID = db.GetUserID(tgID)
 	}
+
+	userID := db.GetUserID(tgID)
 	rows, err := db.DB.Query(`
 	SELECT weigh_date, weight_value from userweight
 	WHERE user_id = $1`, userID)
