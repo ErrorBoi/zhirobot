@@ -1,11 +1,10 @@
-module zhirobot
+module github.com/ErrorBoi/zhirobot
 
 go 1.14
 
 require (
-	github.com/ErrorBoi/zhirobot v0.0.0-20190922093332-c907ac0df9b3
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/go-telegram-bot-api/telegram-bot-api v4.6.5-0.20190904012038-b33efeebc785+incompatible
+	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
 	github.com/jasonlvhit/gocron v0.0.0-20200323211822-1a413f9a41a2
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.3.0
