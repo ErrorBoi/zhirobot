@@ -1,8 +1,6 @@
 package bot
 
 import (
-	h "github.com/ErrorBoi/zhirobot/helpers"
-
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
@@ -11,7 +9,9 @@ func (b *Bot) weeklyNotification() {
 		ChatID: b.ChatID,
 	}
 	chat, err := b.BotAPI.GetChat(ccfg)
-	h.PanicIfErr(err)
+	if err != nil {
+		panic(err)
+	}
 	text := tgbotapi.NewMessage(chat.ID, `Еженедельная сдача показаний!
 	1. Взвесься на голодный желудок
 	2. Введи /setweight <вес> в конфе или чате с ботом
@@ -19,7 +19,9 @@ func (b *Bot) weeklyNotification() {
 	4. Ты лучше всех!`)
 
 	message, err := b.BotAPI.Send(text)
-	h.PanicIfErr(err)
+	if err != nil {
+		panic(err)
+	}
 
 	pcmcfg := tgbotapi.PinChatMessageConfig{
 		ChatID:              chat.ID,
@@ -27,5 +29,7 @@ func (b *Bot) weeklyNotification() {
 		DisableNotification: false,
 	}
 	_, err = b.BotAPI.PinChatMessage(pcmcfg)
-	h.PanicIfErr(err)
+	if err != nil {
+		panic(err)
+	}
 }

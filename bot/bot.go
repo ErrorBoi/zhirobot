@@ -4,20 +4,21 @@ import (
 	"log"
 	"strings"
 
-	h "github.com/ErrorBoi/zhirobot/helpers"
-
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/jasonlvhit/gocron" // Job Scheduling Package
+
+	"github.com/ErrorBoi/zhirobot/db"
 )
 
 // Bot unites botAPI and channels
 type Bot struct {
 	BotAPI *tgbotapi.BotAPI
+	DB     *db.DB
 	ChatID int64
 }
 
 // InitBot inits a bot with given Token
-func InitBot(BotToken string) (*Bot, error) {
+func InitBot(BotToken string, DB *db.DB) (*Bot, error) {
 	var err error
 	var bot Bot
 	bot.BotAPI, err = tgbotapi.NewBotAPI(BotToken)
@@ -27,7 +28,9 @@ func InitBot(BotToken string) (*Bot, error) {
 
 	bot.BotAPI.Buffer = 12 * 50
 
-	bot.ChatID = -1001329666345
+	bot.ChatID = ZhirosbrosChatID
+
+	bot.DB = DB
 
 	return &bot, nil
 }
@@ -35,7 +38,9 @@ func InitBot(BotToken string) (*Bot, error) {
 // SetDebugMode turns botAPI's debug mode on/off
 func (b *Bot) SetDebugMode(DebugMode bool, err error) {
 	b.BotAPI.Debug = DebugMode
-	h.PanicIfErr(err)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // InitUpdates inits an Updates Channel
@@ -69,7 +74,6 @@ func (b *Bot) InitUpdates(BotToken string) {
 // ExecuteCommand distributes commands to go routines
 func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 	command := strings.ToLower(m.Command())
-	log.Printf("Command: %s, Username: %s, ID: %d", command, m.From.UserName, m.From.ID)
 
 	switch command {
 	case "faq":
