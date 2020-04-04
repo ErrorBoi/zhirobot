@@ -63,8 +63,7 @@ func (b *Bot) InitUpdates(BotToken string) {
 		}
 
 		if update.Message.IsCommand() {
-			message := update.Message
-			b.ExecuteCommand(message)
+			b.ExecuteCommand(update.Message)
 		}
 
 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
@@ -88,11 +87,11 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 		{
 			go b.help(m)
 		}
-	case "setweight":
+	case "setweight", "sw", "s":
 		{
 			go b.setWeight(m)
 		}
-	case "getweight":
+	case "getweight", "gw", "g":
 		{
 			go b.getWeight(m)
 		}
