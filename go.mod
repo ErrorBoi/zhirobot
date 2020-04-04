@@ -4,8 +4,8 @@ go 1.14
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/go-co-op/gocron v0.1.0
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
-	github.com/jasonlvhit/gocron v0.0.0-20200323211822-1a413f9a41a2
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.3.0
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect

@@ -3,9 +3,10 @@ package bot
 import (
 	"log"
 	"strings"
+	"time"
 
+	"github.com/go-co-op/gocron"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/jasonlvhit/gocron" // Job Scheduling Package
 
 	"github.com/ErrorBoi/zhirobot/db"
 )
@@ -53,13 +54,17 @@ func (b *Bot) InitUpdates(BotToken string) {
 	updates := b.BotAPI.ListenForWebhook("/" + BotToken)
 	log.Printf("Authorized on account %s", b.BotAPI.Self.UserName)
 
+	sched := gocron.NewScheduler(time.FixedZone("UTC+3", 3*60*60))
+
 	// Send "Time to weigh" reminder every Sunday
-	gocron.Every(1).Sunday().At("10:00").Do(b.weeklyNotification)
+	sched.Every(1).Sunday().At("09:00").Do(b.weeklyNotification)
+	sched.Every(1).Sunday().At("10:00").Do(b.weeklyNotification)
+	sched.Every(1).Sunday().At("11:00").Do(b.weeklyNotification)
 
 	// Wake Up a bot before it goes to idling
-	gocron.Every(15).Minute().Do(b.wakeUp)
+	sched.Every(15).Minute().Do(b.wakeUp)
 
-	gocron.Start()
+	<-sched.Start()
 
 	for update := range updates {
 		if update.Message == nil { // ignore any non-Message Updates
