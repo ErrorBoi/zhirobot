@@ -54,17 +54,7 @@ func (b *Bot) InitUpdates(BotToken string) {
 	updates := b.BotAPI.ListenForWebhook("/" + BotToken)
 	log.Printf("Authorized on account %s", b.BotAPI.Self.UserName)
 
-	sched := gocron.NewScheduler(time.FixedZone("UTC+3", 3*60*60))
-
-	// Send "Time to weigh" reminder every Sunday
-	sched.Every(1).Sunday().At("09:00").Do(b.weeklyNotification)
-	sched.Every(1).Sunday().At("10:00").Do(b.weeklyNotification)
-	sched.Every(1).Sunday().At("11:00").Do(b.weeklyNotification)
-
-	// Wake Up a bot before it goes to idling
-	sched.Every(15).Minute().Do(b.wakeUp)
-
-	<-sched.Start()
+	go b.RunScheduler()
 
 	for update := range updates {
 		if update.Message == nil { // ignore any non-Message Updates
@@ -117,4 +107,18 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 			}
 		}
 	}
+}
+
+func (b *Bot) RunScheduler() {
+	sched := gocron.NewScheduler(time.FixedZone("UTC+3", 3*60*60))
+
+	// Send "Time to weigh" reminder every Sunday
+	sched.Every(1).Sunday().At("09:00").Do(b.weeklyNotification)
+	sched.Every(1).Sunday().At("10:00").Do(b.weeklyNotification)
+	sched.Every(1).Sunday().At("11:00").Do(b.weeklyNotification)
+
+	// Wake Up a bot before it goes to idling
+	sched.Every(15).Minute().Do(b.wakeUp)
+
+	<-sched.Start()
 }
