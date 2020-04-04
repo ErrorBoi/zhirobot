@@ -90,7 +90,7 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 		{
 			go b.setWeight(m)
 		}
-	case "getweight", "gw", "g":
+	case "getweight", "gw":
 		{
 			go b.getWeight(m)
 		}
