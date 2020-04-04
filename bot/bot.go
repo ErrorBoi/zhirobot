@@ -55,6 +55,13 @@ func (b *Bot) InitUpdates(BotToken string) {
 
 	// Send "Time to weigh" reminder every Sunday
 	gocron.Every(1).Sunday().At("11:00").Do(b.weeklyNotification)
+
+	//TODO: Remove after auto wakeup testing
+	gocron.Every(5).Minute().Do(b.testAutoWakeup)
+
+	// Wake Up a bot before it goes to idling
+	gocron.Every(25).Minute().Do(b.wakeUp)
+
 	gocron.Start()
 
 	for update := range updates {
