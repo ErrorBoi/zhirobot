@@ -53,7 +53,6 @@ func (b *Bot) setWeight(m *tgbotapi.Message) {
 
 func (b *Bot) getWeight(m *tgbotapi.Message) {
 	//TODO: Add a feature to get stats of all users (who didn't make their stats private?)
-	//TODO: Add a feature to get stats for a chosen period
 	stats := b.DB.GetUserWeight(m.From.ID)
 	msg := fmt.Sprintf(`<pre>
 %s:
