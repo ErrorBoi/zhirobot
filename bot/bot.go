@@ -113,8 +113,6 @@ func (b *Bot) RunScheduler() {
 	sched := gocron.NewScheduler(time.FixedZone("UTC+3", 3*60*60))
 
 	// Send "Time to weigh" reminder every Sunday
-	sched.Every(1).Sunday().At("09:00").Do(b.weeklyNotification)
-	sched.Every(1).Sunday().At("10:00").Do(b.weeklyNotification)
 	sched.Every(1).Sunday().At("11:00").Do(b.weeklyNotification)
 
 	// Wake Up a bot before it goes to idling
