@@ -110,13 +110,18 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 }
 
 func (b *Bot) RunScheduler() {
-	sched := gocron.NewScheduler(time.FixedZone("UTC+3", 3*60*60))
+	loc, err := time.LoadLocation("Europe/Moscow")
+	if err != nil {
+		panic(err)
+	}
+
+	scheduler := gocron.NewScheduler(loc)
 
 	// Send "Time to weigh" reminder every Sunday
-	sched.Every(1).Sunday().At("11:00").Do(b.weeklyNotification)
+	scheduler.Every(1).Sunday().At("11:00").Do(b.weeklyNotification)
 
 	// Wake Up a bot before it goes to idling
-	sched.Every(15).Minute().Do(b.wakeUp)
+	scheduler.Every(15).Minute().Do(b.wakeUp)
 
-	<-sched.Start()
+	<-scheduler.Start()
 }
