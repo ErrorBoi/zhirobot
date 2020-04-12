@@ -43,9 +43,9 @@ func (b *Bot) setWeight(m *tgbotapi.Message) {
 				case oldWeight == 0 || newWeight == 0:
 					msg = "Вес записан! (◕‿◕✿)"
 				case oldWeight > newWeight:
-					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nЗа неделю сброшено <b>%f</b> кг.", oldWeight-newWeight)
+					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nЗа неделю сброшено <b>%.1f</b> кг.", oldWeight-newWeight)
 				case oldWeight < newWeight:
-					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nЗа неделю набрано <b>%f</b> кг.", newWeight-oldWeight)
+					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nЗа неделю набрано <b>%.1f</b> кг.", newWeight-oldWeight)
 				case oldWeight == newWeight:
 					msg = "Вес записан! (◕‿◕✿)\nЗа неделю вес не изменился."
 				}
