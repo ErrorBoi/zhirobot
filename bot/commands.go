@@ -2,6 +2,7 @@ package bot
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -28,7 +29,7 @@ func (b *Bot) help(m *tgbotapi.Message) {
 func (b *Bot) setWeight(m *tgbotapi.Message) {
 	args := m.CommandArguments()
 	args = strings.TrimSpace(args)
-	msg := "Вес записан! (◕‿◕✿)"
+	var msg string
 
 	if len(args) != 0 {
 		userWeightStr := strings.Split(args, " ")[0]
@@ -38,15 +39,15 @@ func (b *Bot) setWeight(m *tgbotapi.Message) {
 			msg = fmt.Sprintf("%s не является корректным числом.", userWeightStr)
 		} else {
 			if userWeightFloat64 > 0 {
-				newWeight, oldWeight := b.DB.SetUserWeight(m.From.ID, userWeightFloat64)
+				weightDiff := b.DB.SetUserWeight(m.From.ID, userWeightFloat64)
 				switch {
-				case oldWeight == 0 || newWeight == 0:
+				case weightDiff == userWeightFloat64:
 					msg = "Вес записан! (◕‿◕✿)"
-				case oldWeight > newWeight:
-					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nЗа неделю сброшено <b>%.1f</b> кг.", oldWeight-newWeight)
-				case oldWeight < newWeight:
-					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nЗа неделю набрано <b>%.1f</b> кг.", newWeight-oldWeight)
-				case oldWeight == newWeight:
+				case weightDiff < 0:
+					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nЗа неделю сброшено <b>%.1f</b> кг.", math.Abs(weightDiff))
+				case weightDiff > 0:
+					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nЗа неделю набрано <b>%.1f</b> кг.", weightDiff)
+				case weightDiff == 0:
 					msg = "Вес записан! (◕‿◕✿)\nЗа неделю вес не изменился."
 				}
 			} else {

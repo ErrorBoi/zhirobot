@@ -75,7 +75,7 @@ func (db *DB) NewWeightTable() {
 	}
 }
 
-// CreateUser adds row to useracc Table
+// CreateUser adds row to useracc Table if it doesn't already exist
 func (db *DB) CreateUser(tgID int) {
 	_, err := db.DB.Exec(`
 	INSERT INTO useracc (tg_id, created_on)
@@ -97,13 +97,9 @@ func (db *DB) GetUserID(tgID int) int {
 	return userID
 }
 
-// SetUserWeight inserts/updates user weight, then returns new and old weight values
-func (db *DB) SetUserWeight(tgID int, weight float64) (float64, float64) {
-	//TODO: "create if not exists" should be one sql statement
-	exists := db.UserExists(tgID)
-	if !exists {
-		db.CreateUser(tgID)
-	}
+// SetUserWeight inserts/updates user weight, then returns difference between last 2 weights
+func (db *DB) SetUserWeight(tgID int, weight float64) float64 {
+	db.CreateUser(tgID)
 
 	userID := db.GetUserID(tgID)
 	_, err := db.DB.Exec(`
@@ -126,7 +122,7 @@ func (db *DB) SetUserWeight(tgID int, weight float64) (float64, float64) {
 	defer rows.Close()
 
 	var (
-		weightValues = make([]float64, 0, 2)
+		weightValues = make([]float64, 0)
 		weightValue  float64
 	)
 
@@ -142,29 +138,17 @@ func (db *DB) SetUserWeight(tgID int, weight float64) (float64, float64) {
 		panic(err)
 	}
 
-	return weightValues[0], weightValues[1]
-}
-
-// UserExists checks if user with given tgID exists and returns it's ID or 0
-func (db *DB) UserExists(tgID int) bool {
-	var exists bool
-
-	row := db.DB.QueryRow(`select exists(select 1 from useracc where tg_id=$1)`, tgID)
-
-	err := row.Scan(&exists)
-	if err != nil {
-		panic(err)
+	// if weightValues contains <2 values, user has 1 weight measure, so difference cannot be found
+	if len(weightValues) < 2 {
+		return weight
 	}
 
-	return exists
+	return weightValues[0] - weightValues[1]
 }
 
 // GetUserWeight returns weight stats for chosen user
 func (db *DB) GetUserWeight(tgID int) []*Stat {
-	exists := db.UserExists(tgID)
-	if !exists {
-		db.CreateUser(tgID)
-	}
+	db.CreateUser(tgID)
 
 	userID := db.GetUserID(tgID)
 	rows, err := db.DB.Query(`
