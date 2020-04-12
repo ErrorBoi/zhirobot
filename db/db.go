@@ -131,7 +131,7 @@ func (db *DB) SetUserWeight(tgID int, weight float64) (float64, float64) {
 	)
 
 	for rows.Next() {
-		err := rows.Scan(&weight)
+		err := rows.Scan(&weightValue)
 		if err != nil {
 			panic(err)
 		}
