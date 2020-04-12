@@ -38,9 +38,19 @@ func (b *Bot) setWeight(m *tgbotapi.Message) {
 			msg = fmt.Sprintf("%s не является корректным числом.", userWeightStr)
 		} else {
 			if userWeightFloat64 > 0 {
-				b.DB.SetUserWeight(m.From.ID, userWeightFloat64)
+				newWeight, oldWeight := b.DB.SetUserWeight(m.From.ID, userWeightFloat64)
+				switch {
+				case oldWeight == 0 || newWeight == 0:
+					msg = "Вес записан! (◕‿◕✿)"
+				case oldWeight > newWeight:
+					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nЗа неделю сброшено <b>%f</b> кг.", oldWeight-newWeight)
+				case oldWeight < newWeight:
+					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nЗа неделю набрано <b>%f</b> кг.", newWeight-oldWeight)
+				case oldWeight == newWeight:
+					msg = "Вес записан! (◕‿◕✿)\nЗа неделю вес не изменился."
+				}
 			} else {
-				msg = fmt.Sprintln("Введи положительное число!")
+				msg = "Введи положительное число!"
 			}
 		}
 	} else {

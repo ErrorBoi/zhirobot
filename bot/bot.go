@@ -50,7 +50,7 @@ func (b *Bot) InitUpdates(BotToken string) {
 	ucfg.Timeout = 60
 
 	// updates, err := b.BotAPI.GetUpdatesChan(ucfg)
-	// h.PanicIfErr(err)
+
 	updates := b.BotAPI.ListenForWebhook("/" + BotToken)
 	log.Printf("Authorized on account %s", b.BotAPI.Self.UserName)
 

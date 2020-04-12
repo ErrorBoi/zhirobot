@@ -80,7 +80,7 @@ func (db *DB) CreateUser(tgID int) {
 	_, err := db.DB.Exec(`
 	INSERT INTO useracc (tg_id, created_on)
 	VALUES ($1, $2)
-	ON CONFLICT (tg_id) DO NOTHING`, tgID, time.Now().Format("02/01/2006"))
+	ON CONFLICT (tg_id) DO NOTHING`, tgID, time.Now().Format("2006-01-02"))
 	if err != nil {
 		panic(err)
 	}
@@ -97,8 +97,8 @@ func (db *DB) GetUserID(tgID int) int {
 	return userID
 }
 
-// SetUserWeight inserts/updates user weight
-func (db *DB) SetUserWeight(tgID int, w float64) {
+// SetUserWeight inserts/updates user weight, then returns new and old weight values
+func (db *DB) SetUserWeight(tgID int, weight float64) (float64, float64) {
 	//TODO: "create if not exists" should be one sql statement
 	exists := db.UserExists(tgID)
 	if !exists {
@@ -110,10 +110,39 @@ func (db *DB) SetUserWeight(tgID int, w float64) {
 		INSERT INTO userweight (user_id, weigh_date, weight_value)
 		VALUES ($1, $2, $3)
 		ON CONFLICT (user_id, weigh_date) DO UPDATE 
-		SET weight_value=EXCLUDED.weight_value`, userID, time.Now().Format("02/01/2006"), w)
+		SET weight_value=EXCLUDED.weight_value`, userID, time.Now().Format("2006-01-02"), weight)
 	if err != nil {
 		panic(err)
 	}
+
+	rows, err := db.DB.Query(`
+	select weight_value from userweight
+	where user_id = $1
+	order by weigh_date desc
+	limit 2;`, userID)
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+
+	var (
+		weightValues = make([]float64, 2)
+		weightValue  float64
+	)
+
+	for rows.Next() {
+		err := rows.Scan(&weight)
+		if err != nil {
+			panic(err)
+		}
+		weightValues = append(weightValues, weightValue)
+	}
+	err = rows.Err()
+	if err != nil {
+		panic(err)
+	}
+
+	return weightValues[0], weightValues[1]
 }
 
 // UserExists checks if user with given tgID exists and returns it's ID or 0
