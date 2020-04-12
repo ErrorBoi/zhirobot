@@ -119,7 +119,7 @@ func (db *DB) SetUserWeight(tgID int, weight float64) (float64, float64) {
 	select weight_value from userweight
 	where user_id = $1
 	order by weigh_date desc
-	limit 2;`, userID)
+	limit 2`, userID)
 	if err != nil {
 		panic(err)
 	}
@@ -169,7 +169,8 @@ func (db *DB) GetUserWeight(tgID int) []*Stat {
 	userID := db.GetUserID(tgID)
 	rows, err := db.DB.Query(`
 	SELECT weigh_date, weight_value from userweight
-	WHERE user_id = $1`, userID)
+	WHERE user_id = $1
+	ORDER BY weigh_date`, userID)
 	if err != nil {
 		panic(err)
 	}
