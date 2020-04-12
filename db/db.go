@@ -126,7 +126,7 @@ func (db *DB) SetUserWeight(tgID int, weight float64) (float64, float64) {
 	defer rows.Close()
 
 	var (
-		weightValues = make([]float64, 2)
+		weightValues = make([]float64, 0, 2)
 		weightValue  float64
 	)
 
