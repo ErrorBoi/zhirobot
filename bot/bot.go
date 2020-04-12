@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-co-op/gocron"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"go.uber.org/zap"
 
 	"github.com/ErrorBoi/zhirobot/db"
 )
@@ -15,41 +16,30 @@ import (
 type Bot struct {
 	BotAPI *tgbotapi.BotAPI
 	DB     *db.DB
+	lg     *zap.SugaredLogger
 	ChatID int64
 }
 
 // InitBot inits a bot with given Token
-func InitBot(BotToken string, DB *db.DB) (*Bot, error) {
+func InitBot(BotToken string, DB *db.DB, lg *zap.SugaredLogger) (*Bot, error) {
 	var err error
-	var bot Bot
-	bot.BotAPI, err = tgbotapi.NewBotAPI(BotToken)
+	botAPI, err := tgbotapi.NewBotAPI(BotToken)
 	if err != nil {
 		return nil, err
 	}
 
-	bot.BotAPI.Buffer = 12 * 50
-
-	bot.ChatID = ZhirosbrosChatID
-
-	bot.DB = DB
-
-	return &bot, nil
-}
-
-// SetDebugMode turns botAPI's debug mode on/off
-func (b *Bot) SetDebugMode(DebugMode bool, err error) {
-	b.BotAPI.Debug = DebugMode
-	if err != nil {
-		panic(err)
-	}
+	return &Bot{
+		BotAPI: botAPI,
+		DB:     DB,
+		lg:     lg,
+		ChatID: ZhirosbrosChatID,
+	}, nil
 }
 
 // InitUpdates inits an Updates Channel
 func (b *Bot) InitUpdates(BotToken string) {
 	ucfg := tgbotapi.NewUpdate(0)
 	ucfg.Timeout = 60
-
-	// updates, err := b.BotAPI.GetUpdatesChan(ucfg)
 
 	updates := b.BotAPI.ListenForWebhook("/" + BotToken)
 	log.Printf("Authorized on account %s", b.BotAPI.Self.UserName)
@@ -86,7 +76,7 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 		{
 			go b.help(m)
 		}
-	case "setweight", "sw", "s":
+	case "setweight", "sw":
 		{
 			go b.setWeight(m)
 		}
@@ -112,7 +102,7 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 func (b *Bot) RunScheduler() {
 	loc, err := time.LoadLocation("Europe/Moscow")
 	if err != nil {
-		panic(err)
+		b.lg.Errorf("Load time location error: %w", err)
 	}
 
 	scheduler := gocron.NewScheduler(loc)

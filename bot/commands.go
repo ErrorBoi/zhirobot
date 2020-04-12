@@ -17,7 +17,10 @@ func (b *Bot) faq(m *tgbotapi.Message) {
 
 func (b *Bot) start(m *tgbotapi.Message) {
 	b.help(m)
-	b.DB.CreateUser(m.From.ID)
+	err := b.DB.CreateUser(m.From.ID)
+	if err != nil {
+		b.lg.Errorf("Create user error: %w", err)
+	}
 }
 
 func (b *Bot) help(m *tgbotapi.Message) {
@@ -39,15 +42,18 @@ func (b *Bot) setWeight(m *tgbotapi.Message) {
 			msg = fmt.Sprintf("%s не является корректным числом.", userWeightStr)
 		} else {
 			if userWeightFloat64 > 0 {
-				weightDiff := b.DB.SetUserWeight(m.From.ID, userWeightFloat64)
+				weightDiff, err := b.DB.SetUserWeight(m.From.ID, userWeightFloat64)
+				if err != nil {
+					b.lg.Errorf("Set User Weight error: %w", err)
+				}
 				switch {
-				case weightDiff == userWeightFloat64:
+				case *weightDiff == userWeightFloat64:
 					msg = "Вес записан! (◕‿◕✿)"
-				case weightDiff < 0:
-					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nЗа неделю сброшено <b>%.1f</b> кг.", math.Abs(weightDiff))
-				case weightDiff > 0:
-					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nЗа неделю набрано <b>%.1f</b> кг.", weightDiff)
-				case weightDiff == 0:
+				case *weightDiff < 0:
+					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nЗа неделю сброшено <b>%.1f</b> кг.", math.Abs(*weightDiff))
+				case *weightDiff > 0:
+					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nЗа неделю набрано <b>%.1f</b> кг.", *weightDiff)
+				case *weightDiff == 0:
 					msg = "Вес записан! (◕‿◕✿)\nЗа неделю вес не изменился."
 				}
 			} else {
@@ -63,8 +69,10 @@ func (b *Bot) setWeight(m *tgbotapi.Message) {
 }
 
 func (b *Bot) getWeight(m *tgbotapi.Message) {
-	//TODO: Add a feature to get stats of all users (who didn't make their stats private?)
-	stats := b.DB.GetUserWeight(m.From.ID)
+	stats, err := b.DB.GetUserWeight(m.From.ID)
+	if err != nil {
+		b.lg.Errorf("Get User Weight error: %w", err)
+	}
 	msg := fmt.Sprintf(`<pre>
 %s:
 |   Вес     |     Дата      |
@@ -84,7 +92,7 @@ func (b *Bot) getInviteLink(m *tgbotapi.Message) {
 	}
 	inviteLink, err := b.BotAPI.GetInviteLink(ccfg)
 	if err != nil {
-		panic(err)
+		b.lg.Errorf("Get invite link error: %w", err)
 	}
 	msg := fmt.Sprintf("Инвайт в чат \"Жиросброс\": %s", inviteLink)
 	message := tgbotapi.NewMessage(m.Chat.ID, msg)
