@@ -2,6 +2,7 @@ package bot
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -39,6 +40,7 @@ func (b *Bot) setWeight(m *tgbotapi.Message) {
 		} else {
 			if userWeightFloat64 > 0 {
 				newWeight, oldWeight := b.DB.SetUserWeight(m.From.ID, userWeightFloat64)
+				log.Printf("New weight: %f, old weight: %f", newWeight, oldWeight)
 				switch {
 				case oldWeight == 0 || newWeight == 0:
 					msg = "Вес записан! (◕‿◕✿)"
