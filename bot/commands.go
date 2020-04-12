@@ -50,11 +50,11 @@ func (b *Bot) setWeight(m *tgbotapi.Message) {
 				case *weightDiff == userWeightFloat64:
 					msg = "Вес записан! (◕‿◕✿)"
 				case *weightDiff < 0:
-					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nЗа неделю сброшено <b>%.1f</b> кг.", math.Abs(*weightDiff))
+					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nС момента прошлого взвешивания сброшено <b>%.1f</b> кг.", math.Abs(*weightDiff))
 				case *weightDiff > 0:
-					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nЗа неделю набрано <b>%.1f</b> кг.", *weightDiff)
+					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nС момента прошлого взвешивания набрано <b>%.1f</b> кг.", *weightDiff)
 				case *weightDiff == 0:
-					msg = "Вес записан! (◕‿◕✿)\nЗа неделю вес не изменился."
+					msg = "Вес записан! (◕‿◕✿)\nС момента прошлого взвешивания вес не изменился."
 				}
 			} else {
 				msg = "Введи положительное число!"
