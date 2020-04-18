@@ -9,7 +9,7 @@ import (
 
 func (b *Bot) weeklyNotification() {
 	b.groupWeeklyNotification()
-
+	b.usersWeeklyNotification()
 }
 
 func (b *Bot) wakeUp() {
@@ -58,13 +58,11 @@ func (b *Bot) usersWeeklyNotification() {
 		if err != nil {
 			b.lg.Errorf("Get chat error: %w", err)
 		}
-		if user.TgID == 128883002 {
-			text := tgbotapi.NewMessage(int64(user.TgID), fmt.Sprintf(weeklyUserNotificationMessage, chat.FirstName))
+		text := tgbotapi.NewMessage(int64(user.TgID), fmt.Sprintf(weeklyUserNotificationMessage, chat.FirstName))
 
-			_, err = b.BotAPI.Send(text)
-			if err != nil {
-				b.lg.Errorf("Send message error: %w", err)
-			}
+		_, err = b.BotAPI.Send(text)
+		if err != nil {
+			b.lg.Errorf("Send message error: %w", err)
 		}
 	}
 }
