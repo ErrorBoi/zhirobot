@@ -18,6 +18,12 @@ type Stat struct {
 	WeightValue float64
 }
 
+type User struct {
+	ID        int
+	TgID      int
+	CreatedOn string
+}
+
 // NewDB creates and returns Database
 func NewDB(dataSourceName string) (*DB, error) {
 	db, err := sql.Open("postgres", dataSourceName)
@@ -156,7 +162,7 @@ func (db *DB) GetUserWeight(tgID int) ([]*Stat, error) {
 		stat := new(Stat)
 		err := rows.Scan(&stat.WeighDate, &stat.WeightValue)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		stats = append(stats, stat)
 	}
@@ -165,4 +171,29 @@ func (db *DB) GetUserWeight(tgID int) ([]*Stat, error) {
 		return nil, err
 	}
 	return stats, nil
+}
+
+//
+func (db *DB) GetUsers() ([]User, error) {
+	rows, err := db.DB.Query(`select id, tg_id, created_on from useracc;`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	users := make([]User, 0)
+	for rows.Next() {
+		user := User{}
+		err := rows.Scan(&user.ID, &user.TgID, &user.CreatedOn)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }

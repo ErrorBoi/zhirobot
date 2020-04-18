@@ -7,6 +7,18 @@ import (
 )
 
 func (b *Bot) weeklyNotification() {
+	b.groupWeeklyNotification()
+
+}
+
+func (b *Bot) wakeUp() {
+	_, err := http.Get("https://zhirobot.herokuapp.com/")
+	if err != nil {
+		b.lg.Errorf("Send HTTP request error: %w", err)
+	}
+}
+
+func (b *Bot) groupWeeklyNotification() {
 	ccfg := tgbotapi.ChatConfig{
 		ChatID: b.ChatID,
 	}
@@ -32,9 +44,26 @@ func (b *Bot) weeklyNotification() {
 	}
 }
 
-func (b *Bot) wakeUp() {
-	_, err := http.Get("https://zhirobot.herokuapp.com/")
+func (b *Bot) usersWeeklyNotification() {
+	users, err := b.DB.GetUsers()
 	if err != nil {
-		b.lg.Errorf("Send HTTP request error: %w", err)
+		b.lg.Errorf("Get users error: %w", err)
+	}
+	for _, user := range users {
+		//ccfg := tgbotapi.ChatConfig{
+		//	ChatID: int64(user.TgID),
+		//}
+		//chat, err := b.BotAPI.GetChat(ccfg)
+		//if err != nil {
+		//	b.lg.Errorf("Get chat error: %w", err)
+		//}
+		if user.TgID == 128883002 {
+			text := tgbotapi.NewMessage(int64(user.TgID), weeklyNotificationMessage)
+
+			_, err = b.BotAPI.Send(text)
+			if err != nil {
+				b.lg.Errorf("Send message error: %w", err)
+			}
+		}
 	}
 }

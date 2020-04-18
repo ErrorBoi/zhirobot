@@ -113,5 +113,8 @@ func (b *Bot) RunScheduler() {
 	// Wake Up a bot before it goes to idling
 	scheduler.Every(15).Minute().Do(b.wakeUp)
 
+	//TODO: remove after tests
+	scheduler.Every(1).Minute().Do(b.usersWeeklyNotification)
+
 	<-scheduler.Start()
 }
