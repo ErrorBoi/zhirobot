@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fmt"
 	"net/http"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -50,15 +51,15 @@ func (b *Bot) usersWeeklyNotification() {
 		b.lg.Errorf("Get users error: %w", err)
 	}
 	for _, user := range users {
-		//ccfg := tgbotapi.ChatConfig{
-		//	ChatID: int64(user.TgID),
-		//}
-		//chat, err := b.BotAPI.GetChat(ccfg)
-		//if err != nil {
-		//	b.lg.Errorf("Get chat error: %w", err)
-		//}
+		ccfg := tgbotapi.ChatConfig{
+			ChatID: int64(user.TgID),
+		}
+		chat, err := b.BotAPI.GetChat(ccfg)
+		if err != nil {
+			b.lg.Errorf("Get chat error: %w", err)
+		}
 		if user.TgID == 128883002 {
-			text := tgbotapi.NewMessage(int64(user.TgID), weeklyNotificationMessage)
+			text := tgbotapi.NewMessage(int64(user.TgID), fmt.Sprintf(weeklyUserNotificationMessage, chat.FirstName))
 
 			_, err = b.BotAPI.Send(text)
 			if err != nil {
