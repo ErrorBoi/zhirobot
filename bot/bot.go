@@ -65,36 +65,26 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 
 	switch command {
 	case "faq":
-		{
-			go b.faq(m)
-		}
+		go b.faq(m)
 	case "start":
-		{
-			go b.start(m)
-		}
+		go b.start(m)
 	case "help":
-		{
-			go b.help(m)
-		}
+		go b.help(m)
 	case "setweight", "sw":
-		{
-			go b.setWeight(m)
-		}
+		go b.setWeight(m)
 	case "getweight", "gw":
-		{
-			go b.getWeight(m)
-		}
+		go b.getWeight(m)
 	case "invite":
-		{
-			go b.getInviteLink(m)
-		}
+		go b.getInviteLink(m)
+	case "on":
+		go b.turnNotifyOn(m)
+	case "off":
+		go b.turnNotifyOff(m)
 	default:
-		{
-			if m.Chat.IsPrivate() {
-				msg := tgbotapi.NewMessage(m.Chat.ID, "Я не знаю такой команды (凸ಠ益ಠ)凸\nНапиши /help и получи справку по командам")
-				msg.ReplyToMessageID = m.MessageID
-				b.BotAPI.Send(msg)
-			}
+		if m.Chat.IsPrivate() {
+			msg := tgbotapi.NewMessage(m.Chat.ID, "Я не знаю такой команды (凸ಠ益ಠ)凸\nНапиши /help и получи справку по командам")
+			msg.ReplyToMessageID = m.MessageID
+			b.BotAPI.Send(msg)
 		}
 	}
 }

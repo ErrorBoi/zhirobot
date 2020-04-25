@@ -43,6 +43,10 @@ func (b *Bot) usersWeeklyNotification() {
 		b.lg.Errorf("Get users error: %w", err)
 	}
 	for _, user := range users {
+		if !user.Notify {
+			continue
+		}
+
 		ccfg := tgbotapi.ChatConfig{
 			ChatID: int64(user.TgID),
 		}

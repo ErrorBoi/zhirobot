@@ -22,6 +22,7 @@ type User struct {
 	ID        int
 	TgID      int
 	CreatedOn string
+	Notify    bool
 }
 
 // NewDB creates and returns Database
@@ -175,7 +176,7 @@ func (db *DB) GetUserWeight(tgID int) ([]*Stat, error) {
 
 //
 func (db *DB) GetUsers() ([]User, error) {
-	rows, err := db.DB.Query(`select id, tg_id, created_on from useracc;`)
+	rows, err := db.DB.Query(`select id, tg_id, created_on, notify from useracc;`)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +185,7 @@ func (db *DB) GetUsers() ([]User, error) {
 	users := make([]User, 0)
 	for rows.Next() {
 		user := User{}
-		err := rows.Scan(&user.ID, &user.TgID, &user.CreatedOn)
+		err := rows.Scan(&user.ID, &user.TgID, &user.CreatedOn, &user.Notify)
 		if err != nil {
 			return nil, err
 		}
@@ -196,4 +197,12 @@ func (db *DB) GetUsers() ([]User, error) {
 	}
 
 	return users, nil
+}
+
+func (db *DB) SetNotify(tgID int, value bool) error {
+	_, err := db.DB.Exec(`
+	UPDATE useracc
+	SET notify = $1
+	WHERE tg_id = $2`, value, tgID)
+	return err
 }

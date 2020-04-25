@@ -98,3 +98,27 @@ func (b *Bot) getInviteLink(m *tgbotapi.Message) {
 	message := tgbotapi.NewMessage(m.Chat.ID, msg)
 	b.BotAPI.Send(message)
 }
+
+func (b *Bot) turnNotifyOn(m *tgbotapi.Message) {
+	err := b.DB.SetNotify(m.From.ID, true)
+	if err != nil {
+		b.lg.Errorf("Set Notify On error: %w", err)
+	}
+
+	msg := fmt.Sprintf("%s, еженедельные уведомления включены. Отключить их можно командой <pre>/off</pre>", m.From.FirstName)
+	message := tgbotapi.NewMessage(m.Chat.ID, msg)
+	message.ParseMode = tgbotapi.ModeHTML
+	b.BotAPI.Send(message)
+}
+
+func (b *Bot) turnNotifyOff(m *tgbotapi.Message) {
+	err := b.DB.SetNotify(m.From.ID, false)
+	if err != nil {
+		b.lg.Errorf("Set Notify Off error: %w", err)
+	}
+
+	msg := fmt.Sprintf("%s, еженедельные уведомления отключены. Включить их можно командой <pre>/on</pre>", m.From.FirstName)
+	message := tgbotapi.NewMessage(m.Chat.ID, msg)
+	message.ParseMode = tgbotapi.ModeHTML
+	b.BotAPI.Send(message)
+}
