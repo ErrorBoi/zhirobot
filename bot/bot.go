@@ -93,9 +93,8 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 
 // ExecuteText parses user weight from non-command messages and sends it to database
 func (b *Bot) ExecuteText(m *tgbotapi.Message) {
-	text := m.Text
 	if m.Chat.IsPrivate() {
-		b.parseAndSet(m, text)
+		b.parseAndSet(m, m.Text)
 	}
 }
 

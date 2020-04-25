@@ -72,7 +72,7 @@ func (b *Bot) turnNotifyOn(m *tgbotapi.Message) {
 	}
 
 	msg := fmt.Sprintf("%s, еженедельные уведомления включены. Отключить их можно командой /off", m.From.FirstName)
-	message := tgbotapi.NewMessage(m.Chat.ID, msg)
+	message := tgbotapi.NewMessage(int64(m.From.ID), msg)
 	b.BotAPI.Send(message)
 }
 
@@ -83,7 +83,7 @@ func (b *Bot) turnNotifyOff(m *tgbotapi.Message) {
 	}
 
 	msg := fmt.Sprintf("%s, еженедельные уведомления отключены. Включить их можно командой /on", m.From.FirstName)
-	message := tgbotapi.NewMessage(m.Chat.ID, msg)
+	message := tgbotapi.NewMessage(int64(m.From.ID), msg)
 	b.BotAPI.Send(message)
 }
 
