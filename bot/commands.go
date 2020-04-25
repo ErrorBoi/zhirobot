@@ -31,41 +31,7 @@ func (b *Bot) help(m *tgbotapi.Message) {
 
 func (b *Bot) setWeight(m *tgbotapi.Message) {
 	args := m.CommandArguments()
-	args = strings.TrimSpace(args)
-	var msg string
-
-	if len(args) != 0 {
-		userWeightStr := strings.Split(args, " ")[0]
-		userWeightStr = strings.Replace(userWeightStr, ",", ".", 1)
-
-		if userWeightFloat64, err := strconv.ParseFloat(userWeightStr, 64); err != nil {
-			msg = fmt.Sprintf("%s не является корректным числом.", userWeightStr)
-		} else {
-			if userWeightFloat64 > 0 {
-				weightDiff, err := b.DB.SetUserWeight(m.From.ID, userWeightFloat64)
-				if err != nil {
-					b.lg.Errorf("Set User Weight error: %w", err)
-				}
-				switch {
-				case *weightDiff == userWeightFloat64:
-					msg = "Вес записан! (◕‿◕✿)"
-				case *weightDiff < 0:
-					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nС момента прошлого взвешивания сброшено <b>%.1f</b> кг.", math.Abs(*weightDiff))
-				case *weightDiff > 0:
-					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nС момента прошлого взвешивания набрано <b>%.1f</b> кг.", *weightDiff)
-				case *weightDiff == 0:
-					msg = "Вес записан! (◕‿◕✿)\nС момента прошлого взвешивания вес не изменился."
-				}
-			} else {
-				msg = "Введи положительное число!"
-			}
-		}
-	} else {
-		msg = "После команды нужно написать вес, например <pre>/setweight 85.3</pre>"
-	}
-	message := tgbotapi.NewMessage(m.Chat.ID, msg)
-	message.ParseMode = tgbotapi.ModeHTML
-	b.BotAPI.Send(message)
+	b.parseAndSet(m, args)
 }
 
 func (b *Bot) getWeight(m *tgbotapi.Message) {
@@ -118,5 +84,43 @@ func (b *Bot) turnNotifyOff(m *tgbotapi.Message) {
 
 	msg := fmt.Sprintf("%s, еженедельные уведомления отключены. Включить их можно командой /on", m.From.FirstName)
 	message := tgbotapi.NewMessage(m.Chat.ID, msg)
+	b.BotAPI.Send(message)
+}
+
+func (b *Bot) parseAndSet(m *tgbotapi.Message, weight string) {
+	weight = strings.TrimSpace(weight)
+	var msg string
+
+	if len(weight) != 0 {
+		userWeightStr := strings.Split(weight, " ")[0]
+		userWeightStr = strings.Replace(userWeightStr, ",", ".", 1)
+
+		if userWeightFloat64, err := strconv.ParseFloat(userWeightStr, 64); err != nil {
+			msg = fmt.Sprintf("%s не является корректным числом.", userWeightStr)
+		} else {
+			if userWeightFloat64 > 0 {
+				weightDiff, err := b.DB.SetUserWeight(m.From.ID, userWeightFloat64)
+				if err != nil {
+					b.lg.Errorf("Set User Weight error: %w", err)
+				}
+				switch {
+				case *weightDiff == userWeightFloat64:
+					msg = "Вес записан! (◕‿◕✿)"
+				case *weightDiff < 0:
+					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nС момента прошлого взвешивания сброшено <b>%.1f</b> кг.", math.Abs(*weightDiff))
+				case *weightDiff > 0:
+					msg = fmt.Sprintf("Вес записан! (◕‿◕✿)\nС момента прошлого взвешивания набрано <b>%.1f</b> кг.", *weightDiff)
+				case *weightDiff == 0:
+					msg = "Вес записан! (◕‿◕✿)\nС момента прошлого взвешивания вес не изменился."
+				}
+			} else {
+				msg = "Введи положительное число!"
+			}
+		}
+	} else {
+		msg = "После команды нужно написать вес, например <pre>/setweight 85.3</pre>"
+	}
+	message := tgbotapi.NewMessage(m.Chat.ID, msg)
+	message.ParseMode = tgbotapi.ModeHTML
 	b.BotAPI.Send(message)
 }

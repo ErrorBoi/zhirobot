@@ -53,6 +53,8 @@ func (b *Bot) InitUpdates(BotToken string) {
 
 		if update.Message.IsCommand() {
 			b.ExecuteCommand(update.Message)
+		} else {
+			b.ExecuteText(update.Message)
 		}
 
 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
@@ -86,6 +88,14 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 			msg.ReplyToMessageID = m.MessageID
 			b.BotAPI.Send(msg)
 		}
+	}
+}
+
+// ExecuteText parses user weight from non-command messages and sends it to database
+func (b *Bot) ExecuteText(m *tgbotapi.Message) {
+	text := m.Text
+	if m.Chat.IsPrivate() {
+		b.parseAndSet(m, text)
 	}
 }
 
