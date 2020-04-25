@@ -105,9 +105,8 @@ func (b *Bot) turnNotifyOn(m *tgbotapi.Message) {
 		b.lg.Errorf("Set Notify On error: %w", err)
 	}
 
-	msg := fmt.Sprintf("%s, еженедельные уведомления включены. Отключить их можно командой <pre>/off</pre>", m.From.FirstName)
+	msg := fmt.Sprintf("%s, еженедельные уведомления включены. Отключить их можно командой /off", m.From.FirstName)
 	message := tgbotapi.NewMessage(m.Chat.ID, msg)
-	message.ParseMode = tgbotapi.ModeHTML
 	b.BotAPI.Send(message)
 }
 
@@ -117,8 +116,7 @@ func (b *Bot) turnNotifyOff(m *tgbotapi.Message) {
 		b.lg.Errorf("Set Notify Off error: %w", err)
 	}
 
-	msg := fmt.Sprintf("%s, еженедельные уведомления отключены. Включить их можно командой <pre>/on</pre>", m.From.FirstName)
+	msg := fmt.Sprintf("%s, еженедельные уведомления отключены. Включить их можно командой /on", m.From.FirstName)
 	message := tgbotapi.NewMessage(m.Chat.ID, msg)
-	message.ParseMode = tgbotapi.ModeHTML
 	b.BotAPI.Send(message)
 }
