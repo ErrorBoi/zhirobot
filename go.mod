@@ -1,6 +1,7 @@
 module github.com/ErrorBoi/zhirobot
 
 go 1.14
+// +heroku goVersion go1.14
 
 require (
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
