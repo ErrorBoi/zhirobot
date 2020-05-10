@@ -3,9 +3,8 @@ module github.com/ErrorBoi/zhirobot
 go 1.14
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/go-co-op/gocron v0.1.1
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
+	github.com/jasonlvhit/gocron v0.0.0-20200423141508-ab84337f7963
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.3.0
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect

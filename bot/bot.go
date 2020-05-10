@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-co-op/gocron"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/jasonlvhit/gocron"
 	"go.uber.org/zap"
 
 	"github.com/ErrorBoi/zhirobot/db"
@@ -104,13 +104,14 @@ func (b *Bot) RunScheduler() {
 		b.lg.Errorf("Load time location error: %w", err)
 	}
 
-	scheduler := gocron.NewScheduler(loc)
+	gocron.ChangeLoc(loc)
 
 	// Send "Time to weigh" reminder every Sunday
-	scheduler.Every(1).Sunday().At("11:00").Do(b.weeklyNotification)
+	gocron.Every(1).Sunday().At("11:00").Do(b.weeklyNotification)
 
 	// Wake Up a bot before it goes to idling
-	scheduler.Every(15).Minute().Do(b.wakeUp)
+	gocron.Every(15).Minute().Do(b.wakeUp)
 
-	<-scheduler.Start()
+	// Start all the pending jobs
+	<- gocron.Start()
 }

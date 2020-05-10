@@ -52,7 +52,8 @@ func (db *DB) NewUserTable() error {
 		tg_id INTEGER UNIQUE NOT NULL,
 		created_on VARCHAR (50) NOT NULL,
 		height INTEGER,
-		age INTEGER
+		age INTEGER,
+		notify BOOL DEFAULT FALSE
 	 );`)
 	return err
 }
@@ -72,8 +73,8 @@ func (db *DB) NewWeightTable() error {
 // CreateUser adds row to useracc Table if it doesn't already exist
 func (db *DB) CreateUser(tgID int) error {
 	_, err := db.DB.Exec(`
-	INSERT INTO useracc (tg_id, created_on)
-	VALUES ($1, $2)
+	INSERT INTO useracc (tg_id, created_on, notify)
+	VALUES ($1, $2, false)
 	ON CONFLICT (tg_id) DO NOTHING`, tgID, time.Now().Format("2006-01-02"))
 	return err
 }
