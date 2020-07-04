@@ -56,8 +56,7 @@ func (b *Bot) getWeight(m *tgbotapi.Message) {
 		}
 	}
 
-	msg := fmt.Sprintf(`<pre>
-<h3>%s</h3>:
+	msg := fmt.Sprintf(`<pre><b>%s</b>:
 Рост: %d см
 ИМТ: %.1f
 |   Вес     |     Дата      |
