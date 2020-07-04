@@ -26,7 +26,8 @@ func (b *Bot) start(m *tgbotapi.Message) {
 func (b *Bot) help(m *tgbotapi.Message) {
 	msg := tgbotapi.NewMessage(m.Chat.ID, helpText)
 	msg.ParseMode = tgbotapi.ModeHTML
-	b.BotAPI.Send(msg)
+	_, err := b.BotAPI.Send(msg)
+	fmt.Println(err)
 }
 
 func (b *Bot) setWeight(m *tgbotapi.Message) {
