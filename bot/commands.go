@@ -31,7 +31,12 @@ func (b *Bot) help(m *tgbotapi.Message) {
 
 func (b *Bot) setWeight(m *tgbotapi.Message) {
 	args := m.CommandArguments()
-	b.parseAndSet(m, args)
+	b.parseAndSetWeight(m, args)
+}
+
+func (b *Bot) setHeight(m *tgbotapi.Message) {
+	args := m.CommandArguments()
+	b.parseAndSetHeight(m, args)
 }
 
 func (b *Bot) getWeight(m *tgbotapi.Message) {
@@ -39,10 +44,26 @@ func (b *Bot) getWeight(m *tgbotapi.Message) {
 	if err != nil {
 		b.lg.Errorf("Get User Weight error: %w", err)
 	}
+	var imt float64
+
+	height, err := b.DB.GetUserHeight(m.From.ID)
+	if err != nil {
+		b.lg.Errorf("Get User Height error: %w", err)
+		imt = 0
+	} else {
+		imt, err = b.DB.GetUserIMT(m.From.ID)
+		if err != nil {
+			b.lg.Errorf("Get User IMT error: %w", err)
+			imt = 0
+		}
+	}
+
 	msg := fmt.Sprintf(`<pre>
 %s:
+Рост: %d см
+ИМТ: %6.1f
 |   Вес     |     Дата      |
-|-----------|:-------------:|`, m.From.FirstName)
+|-----------|:-------------:|`, m.From.FirstName, height, imt)
 	for _, stat := range stats {
 		msg += fmt.Sprintf("\n|%6.1f     |   %s  |", stat.WeightValue, stat.WeighDate)
 	}
@@ -87,7 +108,7 @@ func (b *Bot) turnNotifyOff(m *tgbotapi.Message) {
 	b.BotAPI.Send(message)
 }
 
-func (b *Bot) parseAndSet(m *tgbotapi.Message, weight string) {
+func (b *Bot) parseAndSetWeight(m *tgbotapi.Message, weight string) {
 	weight = strings.TrimSpace(weight)
 	var msg string
 
@@ -119,6 +140,35 @@ func (b *Bot) parseAndSet(m *tgbotapi.Message, weight string) {
 		}
 	} else {
 		msg = "После команды нужно написать вес, например <pre>/setweight 85.3</pre>"
+	}
+	message := tgbotapi.NewMessage(m.Chat.ID, msg)
+	message.ParseMode = tgbotapi.ModeHTML
+	b.BotAPI.Send(message)
+}
+
+func (b *Bot) parseAndSetHeight(m *tgbotapi.Message, height string) {
+	height = strings.TrimSpace(height)
+	var msg string
+
+	if len(height) != 0 {
+		userHeightStr := strings.Split(height, " ")[0]
+		userHeightStr = strings.Replace(userHeightStr, ",", ".", 1)
+
+		if userHeightInteger, err := strconv.Atoi(userHeightStr); err != nil {
+			msg = fmt.Sprintf("%s не является корректным числом.", userHeightStr)
+		} else {
+			if userHeightInteger > 0 {
+				err := b.DB.SetUserHeight(m.From.ID, userHeightInteger)
+				if err != nil {
+					b.lg.Errorf("Set User Height error: %w", err)
+				}
+				msg = "Рост записан! (◕‿◕✿)"
+			} else {
+				msg = "Введи положительное число!"
+			}
+		}
+	} else {
+		msg = "После команды нужно написать рост в сантиметрах, например <pre>/setheight 175</pre> или <pre>/sh 175</pre>"
 	}
 	message := tgbotapi.NewMessage(m.Chat.ID, msg)
 	message.ParseMode = tgbotapi.ModeHTML
