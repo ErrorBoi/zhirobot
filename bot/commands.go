@@ -56,9 +56,10 @@ func (b *Bot) getWeight(m *tgbotapi.Message) {
 		}
 	}
 
-	msg := fmt.Sprintf(`<pre><b>%s</b>:
+	msg := fmt.Sprintf(`<b>%s</b>:
 Рост: %d см
 ИМТ: %.1f
+<pre>
 |   Вес     |     Дата      |
 |-----------|:-------------:|`, m.From.FirstName, height, bmi)
 	for _, stat := range stats {
