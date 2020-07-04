@@ -44,30 +44,58 @@ func (b *Bot) getWeight(m *tgbotapi.Message) {
 	if err != nil {
 		b.lg.Errorf("Get User Weight error: %w", err)
 	}
-	var imt float64
+	var bmi float64 = 0
 
 	height, err := b.DB.GetUserHeight(m.From.ID)
 	if err != nil {
 		b.lg.Errorf("Get User Height error: %w", err)
-		imt = 0
 	} else {
-		imt, err = b.DB.GetUserIMT(m.From.ID)
+		bmi, err = b.DB.GetUserBMI(m.From.ID)
 		if err != nil {
-			b.lg.Errorf("Get User IMT error: %w", err)
-			imt = 0
+			b.lg.Errorf("Get User BMI error: %w", err)
 		}
 	}
 
 	msg := fmt.Sprintf(`<pre>
-%s:
+<h3>%s</h3>:
 Рост: %d см
-ИМТ: %6.1f
+ИМТ: %.1f
 |   Вес     |     Дата      |
-|-----------|:-------------:|`, m.From.FirstName, height, imt)
+|-----------|:-------------:|`, m.From.FirstName, height, bmi)
 	for _, stat := range stats {
 		msg += fmt.Sprintf("\n|%6.1f     |   %s  |", stat.WeightValue, stat.WeighDate)
 	}
 	msg += "</pre>"
+	message := tgbotapi.NewMessage(m.Chat.ID, msg)
+	message.ParseMode = tgbotapi.ModeHTML
+	b.BotAPI.Send(message)
+}
+
+func (b *Bot) getBMI(m *tgbotapi.Message) {
+	BMI, err := b.DB.GetUserBMI(m.From.ID)
+	if err != nil {
+		b.lg.Errorf("Get User BMI error: %w", err)
+	}
+
+	var text string
+	switch {
+	case BMI <= 16:
+		text = "<b>Ярко выраженный дефицит массы тела.</b> Тебе нужно не сбрасывать, а набирать."
+	case BMI > 16 && BMI <= 18.5:
+		text = "<b>Дефицит массы тела.</b> Возможно стоит задуматься о наборе веса."
+	case BMI > 18.5 && BMI <= 25:
+		text = "<b>Нормальная масса тела.</b> Meh, fucking normie"
+	case BMI > 25 && BMI <= 30:
+		text = "<b>Предожирение.</b> Ситуация не критичная, но возможно стоит задуматься о сбросе веса."
+	case BMI > 30 && BMI <= 35:
+		text = "<b>Ожирение первой степени.</b> Добро пожаловать в жиросброс!"
+	case BMI > 35 && BMI <= 40:
+		text = "<b>Ожирение второй степени.</b> Добро пожаловать в жиросброс! Снова."
+	case BMI > 40:
+		text = "<b>Ожирение третьей степени.</b> Если ты не тяжелоатлет, то у тебя конкретний лишний вес. Пора худеть."
+	}
+
+	msg := fmt.Sprintf(bmiMessage, m.From.FirstName, BMI, text)
 	message := tgbotapi.NewMessage(m.Chat.ID, msg)
 	message.ParseMode = tgbotapi.ModeHTML
 	b.BotAPI.Send(message)

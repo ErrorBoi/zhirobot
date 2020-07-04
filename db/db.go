@@ -141,7 +141,7 @@ func (db *DB) SetUserWeight(tgID int, weight float64) (*float64, error) {
 
 	_, err = db.GetUserHeight(tgID)
 	if err == nil {
-		db.SetUserIMT(tgID)
+		db.SetUserBMI(tgID)
 	}
 
 	weightDiff := weightValues[0] - weightValues[1]
@@ -163,7 +163,7 @@ func (db *DB) SetUserHeight(tgID int, height int) error {
 		return err
 	}
 
-	err = db.SetUserIMT(tgID)
+	err = db.SetUserBMI(tgID)
 	if err != nil {
 		return err
 	}
@@ -217,8 +217,8 @@ func (db *DB) GetUserHeight(tgID int) (int, error) {
 	return height, nil
 }
 
-// SetUserIMT updates user IMT
-func (db *DB) SetUserIMT(tgID int) error {
+// SetUserBMI updates user BMI
+func (db *DB) SetUserBMI(tgID int) error {
 	err := db.CreateUser(tgID)
 	if err != nil {
 		return err
@@ -237,38 +237,38 @@ func (db *DB) SetUserIMT(tgID int) error {
 	}
 	weight := weightValues[len(weightValues)-1].WeightValue
 
-	//calc IMT
+	//calc BMI
 	var (
-		imtValue       float64
+		bmiValue       float64
 		heightInMeters float64
 	)
 
 	heightInMeters = float64(height) / 100
-	imtValue = weight / (heightInMeters * heightInMeters)
+	bmiValue = weight / (heightInMeters * heightInMeters)
 
-	//set IMT
+	//set BMI
 	_, err = db.DB.Exec(`
 		UPDATE useracc
 		SET imt = $1
 		WHERE tg_id = $2
-	`, imtValue, tgID)
+	`, bmiValue, tgID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// GetUserIMT gets user IMT
-func (db *DB) GetUserIMT(tgID int) (float64, error) {
-	var imt float64
+// GetUserBMI gets user BMI
+func (db *DB) GetUserBMI(tgID int) (float64, error) {
+	var bmi float64
 	row := db.DB.QueryRow(`SELECT imt FROM useracc
 	WHERE tg_id = $1`, tgID)
 
-	if err := row.Scan(&imt); err != nil {
+	if err := row.Scan(&bmi); err != nil {
 		return 0, err
 	}
 
-	return imt, nil
+	return bmi, nil
 }
 
 func (db *DB) GetUsers() ([]User, error) {
