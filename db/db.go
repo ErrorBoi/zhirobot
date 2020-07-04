@@ -53,6 +53,7 @@ func (db *DB) NewUserTable() error {
 		created_on VARCHAR (50) NOT NULL,
 		height INTEGER,
 		age INTEGER,
+		imt DECIMAL,
 		notify BOOL DEFAULT FALSE
 	 );`)
 	return err
@@ -138,8 +139,36 @@ func (db *DB) SetUserWeight(tgID int, weight float64) (*float64, error) {
 		return &weight, nil
 	}
 
+	_, err = db.GetUserHeight(tgID)
+	if err == nil {
+		db.SetUserIMT(tgID)
+	}
+
 	weightDiff := weightValues[0] - weightValues[1]
 	return &weightDiff, nil
+}
+
+// SetUserHeight updates user height
+func (db *DB) SetUserHeight(tgID int, height int) error {
+	err := db.CreateUser(tgID)
+	if err != nil {
+		return err
+	}
+	_, err = db.DB.Exec(`
+		UPDATE useracc
+		SET height = $1
+		WHERE tg_id = $2
+	`, height, tgID)
+	if err != nil {
+		return err
+	}
+
+	err = db.SetUserIMT(tgID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // GetUserWeight returns weight stats for chosen user
@@ -175,7 +204,73 @@ func (db *DB) GetUserWeight(tgID int) ([]*Stat, error) {
 	return stats, nil
 }
 
-//
+// GetUserHeight returns weight stats for chosen user
+func (db *DB) GetUserHeight(tgID int) (int, error) {
+	var height int
+	row := db.DB.QueryRow(`SELECT height FROM useracc
+	WHERE tg_id = $1`, tgID)
+
+	if err := row.Scan(&height); err != nil {
+		return 0, err
+	}
+
+	return height, nil
+}
+
+// SetUserIMT updates user IMT
+func (db *DB) SetUserIMT(tgID int) error {
+	err := db.CreateUser(tgID)
+	if err != nil {
+		return err
+	}
+
+	//get height
+	height, err := db.GetUserHeight(tgID)
+	if err != nil {
+		return err
+	}
+
+	//get last weight
+	weightValues, err := db.GetUserWeight(tgID)
+	if err != nil {
+		return err
+	}
+	weight := weightValues[len(weightValues)-1].WeightValue
+
+	//calc IMT
+	var (
+		imtValue       float64
+		heightInMeters float64
+	)
+
+	heightInMeters = float64(height) / 100
+	imtValue = weight / (heightInMeters * heightInMeters)
+
+	//set IMT
+	_, err = db.DB.Exec(`
+		UPDATE useracc
+		SET imt = $1
+		WHERE tg_id = $2
+	`, imtValue, tgID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// GetUserIMT gets user IMT
+func (db *DB) GetUserIMT(tgID int) (float64, error) {
+	var imt float64
+	row := db.DB.QueryRow(`SELECT imt FROM useracc
+	WHERE tg_id = $1`, tgID)
+
+	if err := row.Scan(&imt); err != nil {
+		return 0, err
+	}
+
+	return imt, nil
+}
+
 func (db *DB) GetUsers() ([]User, error) {
 	rows, err := db.DB.Query(`select id, tg_id, created_on, notify from useracc;`)
 	if err != nil {

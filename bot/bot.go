@@ -74,6 +74,8 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 		go b.help(m)
 	case "setweight", "sw":
 		go b.setWeight(m)
+	case "setheight", "sh":
+		go b.setHeight(m)
 	case "getweight", "gw":
 		go b.getWeight(m)
 	case "invite":
@@ -94,7 +96,7 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 // ExecuteText parses user weight from non-command messages and sends it to database
 func (b *Bot) ExecuteText(m *tgbotapi.Message) {
 	if m.Chat.IsPrivate() {
-		b.parseAndSet(m, m.Text)
+		b.parseAndSetWeight(m, m.Text)
 	}
 }
 
@@ -113,5 +115,5 @@ func (b *Bot) RunScheduler() {
 	gocron.Every(15).Minute().Do(b.wakeUp)
 
 	// Start all the pending jobs
-	<- gocron.Start()
+	<-gocron.Start()
 }
