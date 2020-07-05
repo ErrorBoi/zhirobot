@@ -123,7 +123,7 @@ func (b *Bot) ExecuteCallbackQuery(cq *tgbotapi.CallbackQuery) {
 
 		firstName := weightInfo[3]
 
-		msg, last := b.getWeight(tgID, cq.From.FirstName, page)
+		msg, last := b.getWeight(tgID, firstName, page)
 
 		message := tgbotapi.NewEditMessageText(cq.Message.Chat.ID, cq.Message.MessageID, msg)
 		message.ParseMode = tgbotapi.ModeHTML

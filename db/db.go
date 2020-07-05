@@ -144,7 +144,7 @@ func (db *DB) SetUserWeight(tgID int, weight float64) (*float64, error) {
 		return nil, err
 	}
 
-	if err == nil && height != 0{
+	if err == nil && height != 0 {
 		db.SetUserBMI(tgID)
 	}
 
@@ -218,9 +218,8 @@ func (db *DB) GetUserWeight(tgID, page int) ([]*Stat, *bool, error) {
 		return nil, nil, err
 	}
 
-
 	last := true
-	if count > (page + 1) * 10 {
+	if count > (page+1)*10 {
 		last = false
 	}
 
