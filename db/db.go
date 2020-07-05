@@ -139,8 +139,8 @@ func (db *DB) SetUserWeight(tgID int, weight float64) (*float64, error) {
 		return &weight, nil
 	}
 
-	_, err = db.GetUserHeight(tgID)
-	if err == nil {
+	height, err := db.GetUserHeight(tgID)
+	if err == nil && height != 0{
 		db.SetUserBMI(tgID)
 	}
 
