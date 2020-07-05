@@ -80,7 +80,7 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 	case "setheight", "sh":
 		go b.setHeight(m)
 	case "getweight", "gw":
-		go b.getWeight(m, 0)
+		go b.getWeight(m.From.ID, m.Chat.ID, m.From.FirstName, 0)
 	case "invite":
 		go b.getInviteLink(m)
 	case "on":
@@ -107,7 +107,7 @@ func (b *Bot) ExecuteCallbackQuery(cq *tgbotapi.CallbackQuery) {
 			b.lg.Errorf("String to int convertation error: %w", err)
 		}
 
-		b.getWeight(cq.Message, page)
+		b.getWeight(cq.From.ID, cq.Message.Chat.ID, cq.From.FirstName, page)
 	}
 }
 
