@@ -39,7 +39,7 @@ func (b *Bot) setHeight(m *tgbotapi.Message) {
 	b.parseAndSetHeight(m, args)
 }
 
-func (b *Bot) getWeight(tgID int, chatID int64, firstName string, page int) {
+func (b *Bot) getWeight(tgID int, firstName string, page int) (string, bool) {
 	stats, last, err := b.DB.GetUserWeight(tgID, page)
 	if err != nil {
 		b.lg.Errorf("Get User Weight error: %w", err)
@@ -67,13 +67,7 @@ func (b *Bot) getWeight(tgID int, chatID int64, firstName string, page int) {
 	}
 	msg += "</pre>"
 
-
-	message := tgbotapi.NewMessage(chatID, msg)
-	message.ParseMode = tgbotapi.ModeHTML
-
-	message.ReplyMarkup = b.GetWeightKeyboard(tgID, page, *last)
-
-	b.BotAPI.Send(message)
+	return msg, *last
 }
 
 func (b *Bot) getBMI(m *tgbotapi.Message) {
