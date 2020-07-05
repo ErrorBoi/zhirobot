@@ -77,7 +77,7 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 	case "setheight", "sh":
 		go b.setHeight(m)
 	case "getweight", "gw":
-		go b.getWeight(m)
+		go b.getWeight(m, 0)
 	case "invite":
 		go b.getInviteLink(m)
 	case "on":

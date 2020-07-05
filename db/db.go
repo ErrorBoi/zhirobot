@@ -172,19 +172,21 @@ func (db *DB) SetUserHeight(tgID int, height int) error {
 }
 
 // GetUserWeight returns weight stats for chosen user
-func (db *DB) GetUserWeight(tgID int) ([]*Stat, error) {
+func (db *DB) GetUserWeight(tgID, page int) ([]*Stat, *bool, error) {
 	err := db.CreateUser(tgID)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	userID := db.GetUserID(tgID)
 	rows, err := db.DB.Query(`
-	SELECT weigh_date, weight_value from userweight
+	SELECT weigh_date, weight_value FROM userweight
 	WHERE user_id = $1
-	ORDER BY weigh_date`, userID)
+	ORDER BY weigh_date
+	LIMIT 10
+	OFFSET $2*10`, userID, page)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer rows.Close()
 
@@ -193,15 +195,32 @@ func (db *DB) GetUserWeight(tgID int) ([]*Stat, error) {
 		stat := new(Stat)
 		err := rows.Scan(&stat.WeighDate, &stat.WeightValue)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		stats = append(stats, stat)
 	}
 	err = rows.Err()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return stats, nil
+
+	var count int
+	row := db.DB.QueryRow(`
+	SELECT count(*) FROM userweight
+	WHERE user_id = $1`, userID)
+
+	err = row.Scan(&count)
+	if err != nil {
+		return nil, nil, err
+	}
+
+
+	last := true
+	if count > (page + 1) * 10 {
+		last = false
+	}
+
+	return stats, &last, nil
 }
 
 // GetUserHeight returns weight stats for chosen user
@@ -231,7 +250,7 @@ func (db *DB) SetUserBMI(tgID int) error {
 	}
 
 	//get last weight
-	weightValues, err := db.GetUserWeight(tgID)
+	weightValues, _, err := db.GetUserWeight(tgID, 0)
 	if err != nil {
 		return err
 	}
