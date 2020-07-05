@@ -140,6 +140,10 @@ func (db *DB) SetUserWeight(tgID int, weight float64) (*float64, error) {
 	}
 
 	height, err := db.GetUserHeight(tgID)
+	if err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+
 	if err == nil && height != 0{
 		db.SetUserBMI(tgID)
 	}
@@ -254,7 +258,7 @@ func (db *DB) SetUserBMI(tgID int) error {
 	if err != nil {
 		return err
 	}
-	weight := weightValues[len(weightValues)-1].WeightValue
+	weight := weightValues[0].WeightValue
 
 	//calc BMI
 	var (
