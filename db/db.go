@@ -182,7 +182,7 @@ func (db *DB) GetUserWeight(tgID, page int) ([]*Stat, *bool, error) {
 	rows, err := db.DB.Query(`
 	SELECT weigh_date, weight_value FROM userweight
 	WHERE user_id = $1
-	ORDER BY weigh_date
+	ORDER BY weigh_date DESC
 	LIMIT 10
 	OFFSET $2*10`, userID, page)
 	if err != nil {

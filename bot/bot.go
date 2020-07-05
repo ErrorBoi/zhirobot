@@ -2,6 +2,7 @@ package bot
 
 import (
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -47,17 +48,19 @@ func (b *Bot) InitUpdates(BotToken string) {
 	go b.RunScheduler()
 
 	for update := range updates {
-		if update.Message == nil { // ignore any non-Message Updates
-			continue
-		}
-
-		if update.Message.IsCommand() {
-			b.ExecuteCommand(update.Message)
+		if update.Message == nil {
+			if update.CallbackQuery != nil {
+				b.ExecuteCallbackQuery(update.CallbackQuery)
+			}
 		} else {
-			b.ExecuteText(update.Message)
-		}
+			if update.Message.IsCommand() {
+				b.ExecuteCommand(update.Message)
+			} else {
+				b.ExecuteText(update.Message)
+			}
 
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		}
 	}
 }
 
@@ -92,6 +95,19 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 			msg.ReplyToMessageID = m.MessageID
 			b.BotAPI.Send(msg)
 		}
+	}
+}
+
+// ExecuteCallbackQuery handles callback queries
+func (b *Bot) ExecuteCallbackQuery(cq *tgbotapi.CallbackQuery) {
+	if strings.HasPrefix(cq.Data, "getWeight") {
+		pageStr := strings.TrimPrefix(cq.Data, "getWeight-")
+		page, err := strconv.Atoi(pageStr)
+		if err != nil {
+			b.lg.Errorf("String to int convertation error: %w", err)
+		}
+
+		b.getWeight(cq.Message, page)
 	}
 }
 
