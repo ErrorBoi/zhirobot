@@ -84,7 +84,7 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 		message := tgbotapi.NewMessage(m.Chat.ID, msg)
 		message.ParseMode = tgbotapi.ModeHTML
 
-		message.ReplyMarkup = b.GetWeightKeyboard(m.From.ID, 0, last)
+		message.ReplyMarkup = b.GetWeightKeyboard(m.From.ID, 0, m.From.FirstName, last)
 
 		b.BotAPI.Send(message)
 	case "invite":
@@ -107,18 +107,28 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 // ExecuteCallbackQuery handles callback queries
 func (b *Bot) ExecuteCallbackQuery(cq *tgbotapi.CallbackQuery) {
 	if strings.HasPrefix(cq.Data, "getWeight") {
-		pageStr := strings.TrimPrefix(cq.Data, "getWeight-")
+		weightInfo := strings.Split(cq.Data, "-")
+
+		tgIDStr := weightInfo[1]
+		tgID, err := strconv.Atoi(tgIDStr)
+		if err != nil {
+			b.lg.Errorf("String to int convertation error: %w", err)
+		}
+
+		pageStr := weightInfo[2]
 		page, err := strconv.Atoi(pageStr)
 		if err != nil {
 			b.lg.Errorf("String to int convertation error: %w", err)
 		}
 
-		msg, last := b.getWeight(cq.From.ID, cq.From.FirstName, page)
+		firstName := weightInfo[3]
+
+		msg, last := b.getWeight(tgID, cq.From.FirstName, page)
 
 		message := tgbotapi.NewEditMessageText(cq.Message.Chat.ID, cq.Message.MessageID, msg)
 		message.ParseMode = tgbotapi.ModeHTML
 
-		message.ReplyMarkup = b.GetWeightKeyboard(cq.From.ID, page, last)
+		message.ReplyMarkup = b.GetWeightKeyboard(tgID, page, firstName, last)
 
 		b.BotAPI.Send(message)
 	}
