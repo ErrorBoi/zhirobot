@@ -53,11 +53,18 @@ func (b *Bot) InitUpdates(BotToken string) {
 				b.ExecuteCallbackQuery(update.CallbackQuery)
 			}
 		} else {
-			if update.Message.IsCommand() {
-				b.ExecuteCommand(update.Message)
+			if b.isAllowed(update.Message.From.ID) {
+				if update.Message.IsCommand() {
+					b.ExecuteCommand(update.Message)
+				} else {
+					b.ExecuteText(update.Message)
+				}
 			} else {
-				b.ExecuteText(update.Message)
+				text := "Вы не можете пользоваться ботом"
+				msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
+				b.BotAPI.Send(msg)
 			}
+
 
 			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 		}

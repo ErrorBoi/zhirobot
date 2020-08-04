@@ -24,7 +24,7 @@ func (b *Bot) GetWeightKeyboard(tgID, page int, firstName string, last bool) *tg
 
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardRow(buttons...),
-		)
+	)
 
 	return &keyboard
 }
