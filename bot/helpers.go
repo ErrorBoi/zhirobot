@@ -1,7 +1,7 @@
 package bot
 
 var (
-	allowedUsers = []int{128883003}
+	allowedUsers = []int{128883002}
 )
 
 func (b *Bot) isAllowed(tgID int) bool {
