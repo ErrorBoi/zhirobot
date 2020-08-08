@@ -1,15 +1,15 @@
 package bot
 
 var (
-	allowedUsers = []int{128883002}
+	bannedUsers = []int{289675939}
 )
 
 func (b *Bot) isAllowed(tgID int) bool {
-	for _, item := range allowedUsers {
+	for _, item := range bannedUsers {
 		if tgID == item {
-			return true
+			return false
 		}
 	}
 
-	return false
+	return true
 }
