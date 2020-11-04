@@ -201,3 +201,53 @@ func (b *Bot) parseAndSetHeight(m *tgbotapi.Message, height string) {
 	message.ParseMode = tgbotapi.ModeHTML
 	b.BotAPI.Send(message)
 }
+
+func (b *Bot) changeRepoCommand(m *tgbotapi.Message) {
+	msg := b.changeRepo(m)
+	message := tgbotapi.NewMessage(m.Chat.ID, msg)
+	b.BotAPI.Send(message)
+}
+
+func (b *Bot) changeRepo(m *tgbotapi.Message) string {
+	if m.ReplyToMessage == nil {
+		return "Используйте команду как ответ на чьё-то сообщение."
+	}
+
+	if !admins[m.From.ID] {
+		return "Вы не можете использовать эту команду"
+	}
+
+	args := m.CommandArguments()
+
+	args = strings.TrimSpace(args)
+	if len(args) != 0 {
+		argsArr := strings.Split(args, " ")
+		amountStr := argsArr[0]
+		char := argsArr[1]
+
+		amount, err := strconv.Atoi(amountStr)
+		if err != nil || amount <= 0 {
+			return fmt.Sprintf("%s не является корректным числом.", amountStr)
+		}
+
+		if char != "-" && char != "+" {
+			return fmt.Sprintf("%s не является корректным символом.", char)
+		}
+
+		message := tgbotapi.NewMessage(m.Chat.ID, char)
+		message.ReplyToMessageID = m.ReplyToMessage.MessageID
+		for i := 0; i < amount; i++ {
+			res, err := b.BotAPI.Send(message)
+			if err != nil {
+				return fmt.Sprintf("sending msg error: %v", err)
+			}
+
+			b.BotAPI.DeleteMessage(tgbotapi.DeleteMessageConfig{
+				ChatID:    res.Chat.ID,
+				MessageID: res.MessageID,
+			})
+		}
+	}
+
+	return "Репутация изменена."
+}

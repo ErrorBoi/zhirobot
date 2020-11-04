@@ -56,7 +56,7 @@ func (b *Bot) InitUpdates(BotToken string) {
 			if update.Message.IsCommand() {
 				if b.isAllowed(update.Message.From.ID) {
 					b.ExecuteCommand(update.Message)
-				}  else {
+				} else {
 					text := "Вы не можете пользоваться ботом, возможно стоит перестать быть 15летней токсичкой"
 					msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
 					msg.ReplyToMessageID = update.Message.MessageID
@@ -102,6 +102,8 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 		go b.turnNotifyOff(m)
 	case "bmi":
 		go b.getBMI(m)
+	case "repo":
+		go b.changeRepoCommand(m)
 	default:
 		if m.Chat.IsPrivate() {
 			msg := tgbotapi.NewMessage(m.Chat.ID, "Я не знаю такой команды (凸ಠ益ಠ)凸\nНапиши /help и получи справку по командам")

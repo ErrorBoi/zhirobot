@@ -1,6 +1,7 @@
 module github.com/ErrorBoi/zhirobot
 
 go 1.14
+
 // +heroku goVersion go1.14
 
 require (
@@ -12,6 +13,7 @@ require (
 	github.com/stretchr/testify v1.5.1 // indirect
 	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	go.uber.org/zap v1.14.1
+	golang.org/x/website v0.0.0-20200812134732-484e0a06efd0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
