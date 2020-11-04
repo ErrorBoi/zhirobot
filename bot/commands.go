@@ -5,6 +5,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -218,8 +219,8 @@ func (b *Bot) changeRepo(m *tgbotapi.Message) string {
 	}
 
 	args := m.CommandArguments()
-
 	args = strings.TrimSpace(args)
+
 	if len(args) != 0 {
 		argsArr := strings.Split(args, " ")
 		amountStr := argsArr[0]
@@ -246,6 +247,8 @@ func (b *Bot) changeRepo(m *tgbotapi.Message) string {
 				ChatID:    res.Chat.ID,
 				MessageID: res.MessageID,
 			})
+
+			time.Sleep(2 * time.Second)
 		}
 	}
 
