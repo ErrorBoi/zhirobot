@@ -54,12 +54,11 @@ func (b *Bot) InitUpdates(BotToken string) {
 			}
 		} else {
 			if update.Message.IsCommand() {
-				if b.isAllowed(update.Message.From.ID) {
+				if allowedUsers[update.Message.From.ID] {
 					b.ExecuteCommand(update.Message)
 				} else {
-					text := "Вы не можете пользоваться ботом, возможно стоит перестать быть 15летней токсичкой"
+					text := "/g@draiBot перламутровый"
 					msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
-					msg.ReplyToMessageID = update.Message.MessageID
 					b.BotAPI.Send(msg)
 				}
 			} else {

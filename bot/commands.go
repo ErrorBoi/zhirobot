@@ -214,7 +214,7 @@ func (b *Bot) changeRepo(m *tgbotapi.Message) string {
 		return "Используйте команду как ответ на чьё-то сообщение."
 	}
 
-	if !admins[m.From.ID] {
+	if !allowedUsers[m.From.ID] {
 		return "Вы не можете использовать эту команду"
 	}
 
