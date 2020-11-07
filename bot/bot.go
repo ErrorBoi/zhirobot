@@ -54,13 +54,7 @@ func (b *Bot) InitUpdates(BotToken string) {
 			}
 		} else {
 			if update.Message.IsCommand() {
-				if allowedUsers[update.Message.From.ID] {
-					b.ExecuteCommand(update.Message)
-				} else {
-					text := "/g@draiBot перламутровый"
-					msg := tgbotapi.NewMessage(update.Message.Chat.ID, text)
-					b.BotAPI.Send(msg)
-				}
+				b.ExecuteCommand(update.Message)
 			} else {
 				b.ExecuteText(update.Message)
 			}
