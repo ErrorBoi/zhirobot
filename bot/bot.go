@@ -47,6 +47,10 @@ func (b *Bot) InitUpdates(BotToken string) {
 
 	go b.RunScheduler()
 
+	b.processUpdates(updates)
+}
+
+func (b *Bot) processUpdates(updates tgbotapi.UpdatesChannel) {
 	for update := range updates {
 		if update.Message == nil {
 			if update.CallbackQuery != nil {
@@ -58,23 +62,31 @@ func (b *Bot) InitUpdates(BotToken string) {
 			} else {
 				b.ExecuteText(update.Message)
 			}
-
-			log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 		}
 	}
 }
 
 // ExecuteCommand distributes commands to go routines
 func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
-	command := strings.ToLower(m.Command())
+	command := strings.ToLower(m.CommandWithAt())
+
+	var hasAtSymbol bool
+	if i := strings.Index(command, "@"); i != -1 {
+		hasAtSymbol = true
+		command = command[:i]
+	}
 
 	switch command {
 	case "faq":
-		go b.faq(m)
+		if hasAtSymbol || m.Chat.IsPrivate() {
+			go b.faq(m)
+		}
 	case "start":
 		go b.start(m)
 	case "help":
-		go b.help(m)
+		if hasAtSymbol || m.Chat.IsPrivate() {
+			go b.help(m)
+		}
 	case "setweight", "sw":
 		go b.setWeight(m)
 	case "setheight", "sh":
@@ -95,10 +107,8 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 		go b.turnNotifyOff(m)
 	case "bmi":
 		go b.getBMI(m)
-	case "repo":
-		go b.changeRepoCommand(m)
 	default:
-		if m.Chat.IsPrivate() {
+		if hasAtSymbol || m.Chat.IsPrivate() {
 			msg := tgbotapi.NewMessage(m.Chat.ID, "Я не знаю такой команды (凸ಠ益ಠ)凸\nНапиши /help и получи справку по командам")
 			msg.ReplyToMessageID = m.MessageID
 			b.BotAPI.Send(msg)

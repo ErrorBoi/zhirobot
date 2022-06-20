@@ -20,7 +20,7 @@ func MainHandler(resp http.ResponseWriter, _ *http.Request) {
 func main() {
 	logger, err := zap.NewProduction()
 	if err != nil {
-		panic(fmt.Errorf("init logger error: %w", err))
+		panic(any(fmt.Errorf("init logger error: %w", err)))
 	}
 	defer logger.Sync()
 
