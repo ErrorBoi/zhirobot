@@ -6,11 +6,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ErrorBoi/zhirobot/db"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/jasonlvhit/gocron"
 	"go.uber.org/zap"
-
-	"github.com/ErrorBoi/zhirobot/db"
 )
 
 // Bot unites botAPI and channels
