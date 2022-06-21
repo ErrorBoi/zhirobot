@@ -70,21 +70,24 @@ func (b *Bot) processUpdates(updates tgbotapi.UpdatesChannel) {
 func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 	command := strings.ToLower(m.CommandWithAt())
 
-	var hasAtSymbol bool
+	var (
+		hasAtSymbol bool
+		botName     string
+	)
 	if i := strings.Index(command, "@"); i != -1 {
 		hasAtSymbol = true
-		command = command[:i]
+		command, botName = command[:i], command[i+1:]
 	}
 
 	switch command {
 	case "faq":
-		if hasAtSymbol || m.Chat.IsPrivate() {
+		if hasAtSymbol && botName == BotName || m.Chat.IsPrivate() {
 			go b.faq(m)
 		}
 	case "start":
 		go b.start(m)
 	case "help":
-		if hasAtSymbol || m.Chat.IsPrivate() {
+		if hasAtSymbol && botName == BotName || m.Chat.IsPrivate() {
 			go b.help(m)
 		}
 	case "setweight", "sw":
@@ -108,7 +111,7 @@ func (b *Bot) ExecuteCommand(m *tgbotapi.Message) {
 	case "bmi":
 		go b.getBMI(m)
 	default:
-		if hasAtSymbol || m.Chat.IsPrivate() {
+		if hasAtSymbol && botName == BotName || m.Chat.IsPrivate() {
 			msg := tgbotapi.NewMessage(m.Chat.ID, "Я не знаю такой команды (凸ಠ益ಠ)凸\nНапиши /help и получи справку по командам")
 			msg.ReplyToMessageID = m.MessageID
 			b.BotAPI.Send(msg)
