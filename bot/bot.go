@@ -1,12 +1,14 @@
 package bot
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/ErrorBoi/zhirobot/db"
+	"github.com/ErrorBoi/zhirobot/internal/services/whoami"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/jasonlvhit/gocron"
@@ -15,10 +17,11 @@ import (
 
 // Bot unites botAPI and channels
 type Bot struct {
-	BotAPI *tgbotapi.BotAPI
-	DB     *db.DB
-	lg     *zap.SugaredLogger
-	ChatID int64
+	BotAPI    *tgbotapi.BotAPI
+	DB        *db.DB
+	lg        *zap.SugaredLogger
+	ChatID    int64
+	whoAmICli *whoami.WhoAmI
 }
 
 // InitBot inits a bot with given Token
@@ -29,11 +32,14 @@ func InitBot(BotToken string, DB *db.DB, lg *zap.SugaredLogger) (*Bot, error) {
 		return nil, err
 	}
 
+	whoAmICli := whoami.New()
+
 	return &Bot{
-		BotAPI: botAPI,
-		DB:     DB,
-		lg:     lg,
-		ChatID: ZhirosbrosChatID,
+		BotAPI:    botAPI,
+		DB:        DB,
+		lg:        lg,
+		ChatID:    ZhirosbrosChatID,
+		whoAmICli: whoAmICli,
 	}, nil
 }
 
@@ -151,7 +157,27 @@ func (b *Bot) ExecuteCallbackQuery(cq *tgbotapi.CallbackQuery) {
 
 // ExecuteText parses user weight from non-command messages and sends it to database
 func (b *Bot) ExecuteText(m *tgbotapi.Message) {
-	if m.Chat.IsPrivate() {
+	text := strings.ToLower(m.Text)
+	switch {
+	case strings.Contains(text, "кто я"):
+		messageText := b.whoAmICli.GetMyTitle()
+		msg := tgbotapi.NewMessage(m.Chat.ID, messageText)
+		msg.ReplyToMessageID = m.MessageID
+		b.BotAPI.Send(msg)
+	case strings.Contains(text, "кто он") || strings.Contains(text, "кто это"):
+		if m.ReplyToMessage != nil {
+			messageText := b.whoAmICli.GetUserTitle(m.ReplyToMessage.From.FirstName)
+			msg := tgbotapi.NewMessage(m.Chat.ID, messageText)
+			msg.ReplyToMessageID = m.MessageID
+			b.BotAPI.Send(msg)
+		} else {
+			messageText := fmt.Sprintf("я не знаю о ком речь, но %s отправь мне реплай на юзера!",
+				b.whoAmICli.GetMyTitle())
+			msg := tgbotapi.NewMessage(m.Chat.ID, messageText)
+			msg.ReplyToMessageID = m.MessageID
+			b.BotAPI.Send(msg)
+		}
+	case m.Chat.IsPrivate():
 		b.parseAndSetWeight(m, m.Text)
 	}
 }
